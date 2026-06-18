@@ -43,12 +43,13 @@ const workWeek = [
   { value: 5, label: "Sexta" },
 ];
 const periodOptions = [
-  { label: "1º período", start: "07:00", end: "07:50" },
-  { label: "2º período", start: "07:50", end: "08:40" },
-  { label: "3º período", start: "08:40", end: "09:30" },
-  { label: "4º período", start: "09:50", end: "10:40" },
-  { label: "5º período", start: "10:40", end: "11:30" },
-  { label: "6º período", start: "11:30", end: "12:20" },
+  { label: "1º período", start: "07:30", end: "08:20" },
+  { label: "2º período", start: "08:20", end: "09:10" },
+  { label: "3º período", start: "09:10", end: "10:00" },
+  { label: "4º período", start: "10:00", end: "10:50" },
+  { label: "5º período", start: "10:50", end: "11:40" },
+  { label: "6º período", start: "11:40", end: "12:30" },
+  { label: "7º período", start: "12:30", end: "13:20" },
 ].map((period) => ({
   ...period,
   value: `${period.label}|${period.start}|${period.end}`,
@@ -107,18 +108,6 @@ function initials(name: string) {
     .toUpperCase();
 }
 
-function roomStatusLabel(status: Room["status"]) {
-  if (status === "occupied") return "Em aula";
-  if (status === "reserved") return "Reservada";
-  return "Livre";
-}
-
-function roomStatusClass(status: Room["status"]) {
-  if (status === "occupied") return "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/70 dark:bg-rose-950/35 dark:text-rose-200";
-  if (status === "reserved") return "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/70 dark:bg-amber-950/35 dark:text-amber-200";
-  return "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/70 dark:bg-emerald-950/35 dark:text-emerald-200";
-}
-
 function contractTypeLabel(value: "permanent" | "temporary") {
   return value === "permanent" ? "Concursado" : "Não concursado";
 }
@@ -147,20 +136,20 @@ function Button({
 }) {
   const variants = {
     primary:
-      "bg-[#e95635] text-white shadow-sm shadow-orange-600/20 hover:bg-[#d84b2d]",
+      "bg-[#e95635] text-white shadow-sm shadow-orange-600/20 hover:bg-[#d84b2d] hover:shadow-lg hover:shadow-orange-600/20",
     secondary:
-      "border border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50 dark:border-white/10 dark:bg-white/5 dark:text-zinc-100 dark:hover:bg-white/10",
+      "border border-zinc-200 bg-white text-zinc-800 shadow-sm hover:bg-zinc-50 hover:shadow-md dark:border-white/10 dark:bg-white/5 dark:text-zinc-100 dark:hover:bg-white/10",
     ghost:
       "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-300 dark:hover:bg-white/10 dark:hover:text-white",
     danger:
-      "bg-rose-600 text-white hover:bg-rose-700",
+      "bg-rose-600 text-white shadow-sm shadow-rose-600/20 hover:bg-rose-700 hover:shadow-lg hover:shadow-rose-600/20",
   };
 
   return (
     <button
       type={type}
       className={cx(
-        "inline-flex h-10 items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50",
+        "inline-flex h-10 transform-gpu items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition-all duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-orange-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 dark:focus-visible:ring-orange-950/40",
         variants[variant],
         className,
       )}
@@ -180,7 +169,7 @@ function TextInput({
     <label className={cx("grid gap-2 text-sm font-semibold text-zinc-700 dark:text-zinc-200", className)}>
       {label}
       <input
-        className="h-12 rounded-xl border border-zinc-200 bg-white px-4 text-base text-zinc-950 outline-none transition placeholder:text-zinc-400 focus:border-[#e95635] focus:ring-4 focus:ring-orange-100 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-zinc-500 dark:focus:ring-orange-950/40"
+        className="h-12 rounded-xl border border-zinc-200 bg-white px-4 text-base text-zinc-950 outline-none transition-all duration-200 placeholder:text-zinc-400 hover:border-zinc-300 focus:border-[#e95635] focus:ring-4 focus:ring-orange-100 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-zinc-500 dark:hover:border-white/20 dark:focus:ring-orange-950/40"
         {...props}
       />
     </label>
@@ -197,7 +186,7 @@ function SelectInput({
     <label className={cx("grid gap-2 text-sm font-semibold text-zinc-700 dark:text-zinc-200", className)}>
       {label}
       <select
-        className="h-12 rounded-xl border border-zinc-200 bg-white px-4 text-base text-zinc-950 outline-none transition focus:border-[#e95635] focus:ring-4 focus:ring-orange-100 dark:border-white/10 dark:bg-[#14101f] dark:text-white dark:focus:ring-orange-950/40"
+        className="h-12 rounded-xl border border-zinc-200 bg-white px-4 text-base text-zinc-950 outline-none transition-all duration-200 hover:border-zinc-300 focus:border-[#e95635] focus:ring-4 focus:ring-orange-100 dark:border-white/10 dark:bg-[#14101f] dark:text-white dark:hover:border-white/20 dark:focus:ring-orange-950/40"
         {...props}
       >
         {children}
@@ -216,7 +205,7 @@ function PasswordInput({ label, name, placeholder }: { label: string; name: stri
           name={name}
           type={visible ? "text" : "password"}
           placeholder={placeholder}
-          className="h-12 w-full rounded-xl border border-zinc-200 bg-white px-4 pr-12 text-base text-zinc-950 outline-none transition placeholder:text-zinc-400 focus:border-[#e95635] focus:ring-4 focus:ring-orange-100 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-zinc-500 dark:focus:ring-orange-950/40"
+          className="h-12 w-full rounded-xl border border-zinc-200 bg-white px-4 pr-12 text-base text-zinc-950 outline-none transition-all duration-200 placeholder:text-zinc-400 hover:border-zinc-300 focus:border-[#e95635] focus:ring-4 focus:ring-orange-100 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-zinc-500 dark:hover:border-white/20 dark:focus:ring-orange-950/40"
         />
         <button
           type="button"
@@ -238,7 +227,7 @@ function ThemeToggle({ theme, setTheme }: { theme: "light" | "dark"; setTheme: (
       type="button"
       aria-label="Alternar tema"
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-700 shadow-sm transition hover:bg-zinc-50 dark:border-white/10 dark:bg-white/5 dark:text-zinc-100 dark:hover:bg-white/10"
+      className="inline-flex h-10 w-10 transform-gpu items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-700 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-zinc-50 hover:shadow-md active:scale-95 dark:border-white/10 dark:bg-white/5 dark:text-zinc-100 dark:hover:bg-white/10"
     >
       {isDark ? <Sun size={18} /> : <Moon size={18} />}
     </button>
@@ -275,7 +264,7 @@ function StatCard({
   tone: string;
 }) {
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.04]">
+    <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md dark:border-white/10 dark:bg-white/[0.04]">
       <div className={cx("mb-4 grid h-8 w-8 place-items-center rounded-lg", tone)}>{icon}</div>
       <div className="text-2xl font-black text-zinc-950 dark:text-white">{value}</div>
       <div className="mt-1 text-xs font-medium text-zinc-500 dark:text-zinc-400">{label}</div>
@@ -480,12 +469,8 @@ export function GesteccApp() {
   };
 
   const metrics = useMemo(() => {
-    const occupied = data.rooms.filter((room) => room.status !== "free").length;
-    const free = data.rooms.length - occupied;
     const todaysSchedules = data.schedules.filter((schedule) => schedule.weekday === new Date().getDay()).length;
     return {
-      occupied,
-      free,
       todaysSchedules,
       substitutions: data.substitutions.length,
       notices: data.notices.length,
@@ -528,7 +513,7 @@ export function GesteccApp() {
               <div className="mt-9 grid gap-4 text-sm text-zinc-600 dark:text-zinc-300">
                 {[
                   ["Painel de avisos em tempo real", Bell],
-                  ["Status de salas e reservas", DoorOpen],
+                  ["Reservas e salas do dia", DoorOpen],
                   ["Controle de substituições diárias", ClipboardList],
                   ["Aprovação de professores pela gestão", Shield],
                 ].map(([label, Icon]) => (
@@ -566,7 +551,7 @@ export function GesteccApp() {
                     <button
                       type="button"
                       onClick={() => setAuthView("teacher")}
-                      className="group flex items-center justify-between rounded-xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-[#e95635] hover:shadow-md dark:border-white/10 dark:bg-white/[0.04]"
+                      className="group flex transform-gpu items-center justify-between rounded-xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-[#e95635] hover:shadow-lg active:translate-y-0 active:scale-[0.99] dark:border-white/10 dark:bg-white/[0.04]"
                     >
                       <span className="flex items-center gap-4">
                         <span className="grid h-12 w-12 place-items-center rounded-xl bg-[#e95635] text-white">
@@ -584,7 +569,7 @@ export function GesteccApp() {
                     <button
                       type="button"
                       onClick={() => setAuthView("manager")}
-                      className="group flex items-center justify-between rounded-xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-[#2b174f] hover:shadow-md dark:border-white/10 dark:bg-white/[0.04]"
+                      className="group flex transform-gpu items-center justify-between rounded-xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-[#2b174f] hover:shadow-lg active:translate-y-0 active:scale-[0.99] dark:border-white/10 dark:bg-white/[0.04]"
                     >
                       <span className="flex items-center gap-4">
                         <span className="grid h-12 w-12 place-items-center rounded-xl bg-[#2b174f] text-white">
@@ -643,7 +628,7 @@ export function GesteccApp() {
                       Login administrativo único
                     </p>
                   </div>
-                  <TextInput label="Usuário" name="username" placeholder="ETECMAS@GESTÃO-GESTEC" required />
+                  <TextInput label="Usuário" name="username" placeholder="Usuário administrativo" required />
                   <PasswordInput label="Senha" name="password" placeholder="••••••••" />
                   <Button type="submit" className="h-14 rounded-xl text-base" disabled={loading}>
                     Acessar como Gestor
@@ -723,7 +708,7 @@ export function GesteccApp() {
               type="button"
               onClick={() => setPage("general")}
               className={cx(
-                "inline-flex h-9 items-center gap-2 rounded-lg px-3 text-sm font-semibold transition",
+                "inline-flex h-9 transform-gpu items-center gap-2 rounded-lg px-3 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98]",
                 page === "general"
                   ? "bg-white text-zinc-950 shadow-sm dark:bg-[#2a1843] dark:text-white"
                   : "text-zinc-600 hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-white",
@@ -737,7 +722,7 @@ export function GesteccApp() {
                 type="button"
                 onClick={() => setPage("manager")}
                 className={cx(
-                  "inline-flex h-9 items-center gap-2 rounded-lg px-3 text-sm font-semibold transition",
+                  "inline-flex h-9 transform-gpu items-center gap-2 rounded-lg px-3 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98]",
                   page === "manager"
                     ? "bg-[#e95635] text-white shadow-sm"
                     : "text-zinc-600 hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-white",
@@ -752,7 +737,7 @@ export function GesteccApp() {
                 type="button"
                 onClick={() => setPage("teacher")}
                 className={cx(
-                  "inline-flex h-9 items-center gap-2 rounded-lg px-3 text-sm font-semibold transition",
+                  "inline-flex h-9 transform-gpu items-center gap-2 rounded-lg px-3 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98]",
                   page === "teacher"
                     ? "bg-[#e95635] text-white shadow-sm"
                     : "text-zinc-600 hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-white",
@@ -768,7 +753,7 @@ export function GesteccApp() {
             <div className="relative">
               <button
                 type="button"
-                className="relative inline-flex h-10 w-10 items-center justify-center rounded-full text-zinc-600 transition hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-white/10"
+                className="relative inline-flex h-10 w-10 transform-gpu items-center justify-center rounded-full text-zinc-600 transition-all duration-200 hover:-translate-y-0.5 hover:bg-zinc-100 active:scale-95 dark:text-zinc-300 dark:hover:bg-white/10"
                 onClick={() => setNotificationsOpen((value) => !value)}
                 aria-label="Notificações"
               >
@@ -856,7 +841,7 @@ export function GesteccApp() {
             <ThemeToggle theme={theme} setTheme={setTheme} />
             <button
               type="button"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full text-zinc-600 transition hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-white/10"
+              className="inline-flex h-10 w-10 transform-gpu items-center justify-center rounded-full text-zinc-600 transition-all duration-200 hover:-translate-y-0.5 hover:bg-zinc-100 active:scale-95 dark:text-zinc-300 dark:hover:bg-white/10"
               onClick={logout}
               aria-label="Deslogar"
             >
@@ -911,7 +896,7 @@ export function GesteccApp() {
                   type="button"
                   onClick={() => setManagerTab(key as ManagerTab)}
                   className={cx(
-                    "inline-flex h-9 items-center gap-2 rounded-lg px-3 text-sm font-semibold transition",
+                    "inline-flex h-9 transform-gpu items-center gap-2 rounded-lg px-3 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98]",
                     managerTab === key
                       ? "bg-zinc-950 text-white dark:bg-[#e95635]"
                       : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-white/10",
@@ -972,7 +957,7 @@ export function GesteccApp() {
                   type="button"
                   onClick={() => setTeacherTab(key as TeacherTab)}
                   className={cx(
-                    "inline-flex h-10 items-center gap-2 rounded-lg px-4 text-sm font-bold transition",
+                    "inline-flex h-10 transform-gpu items-center gap-2 rounded-lg px-4 text-sm font-bold transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98]",
                     teacherTab === key
                       ? "bg-white text-zinc-950 shadow-sm dark:bg-[#2a1843] dark:text-white"
                       : "text-zinc-600 hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-white",
@@ -1028,8 +1013,6 @@ function GeneralDashboard({
 }: {
   data: AppSnapshot;
   metrics: {
-    occupied: number;
-    free: number;
     todaysSchedules: number;
     substitutions: number;
     notices: number;
@@ -1038,6 +1021,23 @@ function GeneralDashboard({
   role: "manager" | "teacher";
 }) {
   const todaySchedules = data.schedules.filter((schedule) => schedule.weekday === new Date().getDay());
+  const todayScheduleRows = todaySchedules.map((schedule) =>
+    role === "manager"
+      ? [
+          `${schedule.periodLabel} · ${schedule.startTime}-${schedule.endTime}`,
+          schedule.discipline,
+          schedule.teacherName,
+          schedule.classGroup,
+          schedule.roomName,
+        ]
+      : [
+          `${schedule.periodLabel} · ${schedule.startTime}-${schedule.endTime}`,
+          schedule.discipline,
+          schedule.classGroup,
+          schedule.roomName,
+        ],
+  );
+
   return (
     <section className="grid gap-6">
       <div className="flex items-end justify-between gap-4">
@@ -1049,7 +1049,7 @@ function GeneralDashboard({
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard icon={<Calendar size={17} />} label="Aulas hoje" value={metrics.todaysSchedules} tone="bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10" />
-        <StatCard icon={<DoorOpen size={17} />} label={role === "teacher" ? "Salas para ir hoje" : "Salas no sistema"} value={role === "teacher" ? new Set(todaySchedules.map((schedule) => schedule.roomName)).size : data.rooms.length} tone="bg-rose-50 text-rose-600 dark:bg-rose-500/10" />
+        <StatCard icon={<DoorOpen size={17} />} label={role === "teacher" ? "Salas para hoje" : "Salas com aula hoje"} value={new Set(todaySchedules.map((schedule) => schedule.roomName)).size} tone="bg-rose-50 text-rose-600 dark:bg-rose-500/10" />
         <StatCard icon={<ClipboardList size={17} />} label="Substituições hoje" value={metrics.substitutions} tone="bg-amber-50 text-amber-600 dark:bg-amber-500/10" />
         <StatCard icon={<Bell size={17} />} label="Avisos ativos" value={metrics.notices} tone="bg-blue-50 text-blue-600 dark:bg-blue-500/10" />
       </div>
@@ -1096,36 +1096,17 @@ function GeneralDashboard({
         </section>
       </div>
 
-      {role === "teacher" ? (
-        <section className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.04]">
-          <div className="mb-4 flex items-center gap-2">
-            <span className="h-5 w-1 rounded-full bg-emerald-500" />
-            <h2 className="text-base font-black">Salas que você precisa ir hoje</h2>
-          </div>
-          <ResponsiveTable
-            headers={["Período", "Disciplina", "Turma", "Sala"]}
-            rows={todaySchedules.map((schedule) => [
-              `${schedule.periodLabel} · ${schedule.startTime}-${schedule.endTime}`,
-              schedule.discipline,
-              schedule.classGroup,
-              schedule.roomName,
-            ])}
-            empty={<EmptyState icon={<DoorOpen size={26} />} title="Nenhuma sala programada para hoje" />}
-          />
-        </section>
-      ) : (
-        <section>
-          <div className="mb-3 flex items-center gap-2">
-            <span className="h-5 w-1 rounded-full bg-emerald-500" />
-            <h2 className="text-base font-black">Status das Salas em Tempo Real</h2>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
-            {data.rooms.map((room) => (
-              <RoomCard key={room.id} room={room} />
-            ))}
-          </div>
-        </section>
-      )}
+      <section className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.04]">
+        <div className="mb-4 flex items-center gap-2">
+          <span className="h-5 w-1 rounded-full bg-emerald-500" />
+          <h2 className="text-base font-black">{role === "teacher" ? "Salas que você precisa ir hoje" : "Aulas e salas de hoje"}</h2>
+        </div>
+        <ResponsiveTable
+          headers={role === "manager" ? ["Período", "Disciplina", "Professor", "Turma", "Sala"] : ["Período", "Disciplina", "Turma", "Sala"]}
+          rows={todayScheduleRows}
+          empty={<EmptyState icon={<DoorOpen size={26} />} title="Nenhuma sala programada para hoje" />}
+        />
+      </section>
     </section>
   );
 }
@@ -1201,26 +1182,6 @@ function ResponsiveTable({
         </table>
       </div>
     </>
-  );
-}
-
-function RoomCard({ room }: { room: Room }) {
-  return (
-    <article className={cx("min-h-28 rounded-xl border p-4 shadow-sm transition", roomStatusClass(room.status))}>
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h3 className="font-black text-zinc-950 dark:text-white">{room.name}</h3>
-          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{room.kind}</p>
-        </div>
-        <span className={cx("h-2.5 w-2.5 rounded-full", room.status === "free" ? "bg-emerald-500" : room.status === "occupied" ? "bg-rose-500" : "bg-amber-500")} />
-      </div>
-      <div className="mt-4 text-xs font-black uppercase tracking-wide">{roomStatusLabel(room.status)}</div>
-      {room.currentTeacherName && (
-        <p className="mt-2 line-clamp-2 text-xs text-zinc-500 dark:text-zinc-300">
-          {room.currentTeacherName} · {room.currentClass ?? "Sem turma"} · {room.currentPeriod ?? "Agora"}
-        </p>
-      )}
-    </article>
   );
 }
 
@@ -1395,8 +1356,13 @@ function SchedulesManager({
 }) {
   const [selectedDiscipline, setSelectedDiscipline] = useState("");
   const [selectedPeriod, setSelectedPeriod] = useState(periodOptions[0].value);
+  const [scheduleFilterDiscipline, setScheduleFilterDiscipline] = useState("");
   const [editingScheduleId, setEditingScheduleId] = useState<string | null>(null);
   const editingSchedule = data.schedules.find((schedule) => schedule.id === editingScheduleId) ?? null;
+  const scheduleDisciplines = Array.from(new Set(data.schedules.map((schedule) => schedule.discipline))).sort((a, b) => a.localeCompare(b));
+  const visibleSchedules = scheduleFilterDiscipline
+    ? data.schedules.filter((schedule) => schedule.discipline === scheduleFilterDiscipline)
+    : data.schedules;
   const teachersByDiscipline = selectedDiscipline
     ? data.teachers.filter((teacher) => teacher.discipline === selectedDiscipline)
     : data.teachers;
@@ -1412,6 +1378,7 @@ function SchedulesManager({
     setEditingScheduleId(null);
     setSelectedDiscipline("");
     setSelectedPeriod(periodOptions[0].value);
+    setScheduleFilterDiscipline("");
     setScheduleOpen(true);
   };
 
@@ -1431,8 +1398,26 @@ function SchedulesManager({
 
   return (
     <section className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.04]">
-      <div className="mb-4 flex items-center justify-between gap-4">
-        <h2 className="font-black">Grade Horária Completa</h2>
+      <div className="mb-4 grid gap-4 lg:grid-cols-[1fr_auto_auto] lg:items-end">
+        <div>
+          <h2 className="font-black">Grade Horária Completa</h2>
+          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+            Filtre por disciplina para localizar e editar aulas rapidamente.
+          </p>
+        </div>
+        <label className="grid min-w-56 gap-2 text-sm font-semibold text-zinc-700 dark:text-zinc-200">
+          Filtrar disciplina
+          <select
+            value={scheduleFilterDiscipline}
+            onChange={(event) => setScheduleFilterDiscipline(event.currentTarget.value)}
+            className="h-10 rounded-lg border border-zinc-200 bg-white px-3 text-sm text-zinc-950 outline-none transition-all duration-200 hover:border-zinc-300 focus:border-[#e95635] focus:ring-4 focus:ring-orange-100 dark:border-white/10 dark:bg-[#14101f] dark:text-white dark:hover:border-white/20 dark:focus:ring-orange-950/40"
+          >
+            <option value="">Todas</option>
+            {scheduleDisciplines.map((discipline) => (
+              <option key={discipline} value={discipline}>{discipline}</option>
+            ))}
+          </select>
+        </label>
         <Button onClick={scheduleOpen && !editingSchedule ? closeForm : openNewSchedule}>
           <Plus size={15} /> Nova Aula
         </Button>
@@ -1444,19 +1429,20 @@ function SchedulesManager({
           className="mb-5 grid gap-3 rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-white/10 dark:bg-white/[0.04] md:grid-cols-3"
           onSubmit={async (event) => {
             event.preventDefault();
+            const form = event.currentTarget;
             const ok = await postAction(editingSchedule ? "updateSchedule" : "addSchedule", {
               scheduleId: editingSchedule?.id,
-              discipline: getFormString(event.currentTarget, "discipline"),
-              teacherId: getFormString(event.currentTarget, "teacherId"),
-              weekday: Number(getFormString(event.currentTarget, "weekday")),
-              periodLabel: getFormString(event.currentTarget, "periodLabel"),
-              startTime: getFormString(event.currentTarget, "startTime"),
-              endTime: getFormString(event.currentTarget, "endTime"),
-              classGroup: getFormString(event.currentTarget, "classGroup"),
-              roomId: getFormString(event.currentTarget, "roomId"),
+              discipline: getFormString(form, "discipline"),
+              teacherId: getFormString(form, "teacherId"),
+              weekday: Number(getFormString(form, "weekday")),
+              periodLabel: getFormString(form, "periodLabel"),
+              startTime: getFormString(form, "startTime"),
+              endTime: getFormString(form, "endTime"),
+              classGroup: getFormString(form, "classGroup"),
+              roomId: getFormString(form, "roomId"),
             });
             if (ok) {
-              event.currentTarget.reset();
+              form.reset();
               closeForm();
             }
           }}
@@ -1464,7 +1450,7 @@ function SchedulesManager({
           <div className="md:col-span-3">
             <h3 className="font-black">{editingSchedule ? "Editar aula" : "Nova aula"}</h3>
             <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-              Escolha a disciplina, o professor, a sala e um dos 6 períodos.
+              Escolha a disciplina, o professor, a sala e um dos 7 períodos.
             </p>
           </div>
           <SelectInput
@@ -1528,10 +1514,12 @@ function SchedulesManager({
 
       {data.schedules.length === 0 ? (
         <EmptyState icon={<Calendar size={26} />} title="Nenhuma aula cadastrada" />
+      ) : visibleSchedules.length === 0 ? (
+        <EmptyState icon={<Calendar size={26} />} title="Nenhuma aula encontrada para esse filtro" />
       ) : (
         <div className="grid gap-3">
-          {data.schedules.map((schedule) => (
-            <article key={schedule.id} className="rounded-xl border border-zinc-100 bg-zinc-50 p-4 dark:border-white/10 dark:bg-white/[0.03]">
+          {visibleSchedules.map((schedule) => (
+            <article key={schedule.id} className="rounded-xl border border-zinc-100 bg-zinc-50 p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-orange-100 hover:bg-white hover:shadow-md dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-orange-500/30 dark:hover:bg-white/[0.06]">
               <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
@@ -1722,23 +1710,24 @@ function TeacherOverview({
             className="mt-4 grid gap-3 rounded-xl bg-zinc-50 p-4 dark:bg-white/[0.04]"
             onSubmit={async (event) => {
               event.preventDefault();
+              const form = event.currentTarget;
               const ok = await postAction("occupyRoom", {
-                roomId: getFormString(event.currentTarget, "roomId"),
-                classGroup: getFormString(event.currentTarget, "classGroup"),
-                period: getFormString(event.currentTarget, "period"),
+                roomId: getFormString(form, "roomId"),
+                classGroup: getFormString(form, "classGroup"),
+                period: getFormString(form, "period"),
               });
               if (ok) {
-                event.currentTarget.reset();
+                form.reset();
                 setRoomOpen(false);
               }
             }}
           >
-            <SelectInput label="Sala disponível" name="roomId" defaultValue="" required>
+            <SelectInput label="Sala" name="roomId" defaultValue="" required>
               <option value="" disabled>Selecione</option>
               {freeRooms.map((room) => <option key={room.id} value={room.id}>{room.name}</option>)}
             </SelectInput>
             <TextInput label="Turma" name="classGroup" placeholder="Ex: 1º DS" />
-            <TextInput label="Período estimado" name="period" placeholder="Ex: 07h00-08h40" />
+            <TextInput label="Período estimado" name="period" placeholder="Ex: 07h30-08h20" />
             <div className="flex gap-2">
               <Button type="submit" disabled={loading}>Confirmar</Button>
               <Button variant="secondary" onClick={() => setRoomOpen(false)}>Cancelar</Button>
@@ -1840,15 +1829,16 @@ function TeacherReservations({
           className="mb-5 grid gap-3 rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-white/10 dark:bg-white/[0.04] md:grid-cols-2"
           onSubmit={async (event) => {
             event.preventDefault();
+            const form = event.currentTarget;
             const ok = await postAction("addReservation", {
-              roomId: getFormString(event.currentTarget, "roomId"),
-              date: getFormString(event.currentTarget, "date"),
-              startTime: getFormString(event.currentTarget, "startTime"),
-              endTime: getFormString(event.currentTarget, "endTime"),
-              reason: getFormString(event.currentTarget, "reason"),
+              roomId: getFormString(form, "roomId"),
+              date: getFormString(form, "date"),
+              startTime: getFormString(form, "startTime"),
+              endTime: getFormString(form, "endTime"),
+              reason: getFormString(form, "reason"),
             });
             if (ok) {
-              event.currentTarget.reset();
+              form.reset();
               setReservationOpen(false);
             }
           }}

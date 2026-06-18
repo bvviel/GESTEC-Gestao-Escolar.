@@ -79,35 +79,16 @@ export const demoNotices: Notice[] = [
   },
 ];
 
-const additionalClassrooms = Array.from({ length: 35 }, (_, index) => {
-  const number = index + 9;
-  return [`Sala ${String(number).padStart(2, "0")}`, "", "Sala"] as const;
-});
-
-export const demoRooms: Room[] = [
-  ["Auditório", "", "Evento"],
-  ["Lab. Informática", "", "Laboratório"],
-  ["Lab. Química", "", "Laboratório"],
-  ["Sala 01", "", "Sala"],
-  ["Sala 02", "", "Sala"],
-  ["Sala 03", "", "Sala"],
-  ["Sala 04", "", "Sala"],
-  ["Sala 05", "", "Sala"],
-  ["Sala 06", "", "Sala"],
-  ["Sala 07", "", "Sala"],
-  ["Sala 08", "", "Sala"],
-  ["Sala Maker", "", "Laboratório"],
-  ...additionalClassrooms,
-].map(([name, floor, kind], index) => ({
+export const demoRooms: Room[] = Array.from({ length: 47 }, (_, index) => ({
   id: `room-${index + 1}`,
-  name,
-  floor,
-  kind,
-  status: index === 4 ? "occupied" : "free",
-  currentTeacherId: index === 4 ? "teacher-ana" : null,
-  currentTeacherName: index === 4 ? "Ana Beatriz Martins" : null,
-  currentClass: index === 4 ? "2º DS" : null,
-  currentPeriod: index === 4 ? "07h00-07h50" : null,
+  name: `Sala ${String(index + 1).padStart(2, "0")}`,
+  floor: "",
+  kind: "Sala",
+  status: index === 1 ? "occupied" : "free",
+  currentTeacherId: index === 1 ? "teacher-ana" : null,
+  currentTeacherName: index === 1 ? "Ana Beatriz Martins" : null,
+  currentClass: index === 1 ? "2º DS" : null,
+  currentPeriod: index === 1 ? "07h30-08h20" : null,
   updatedAt: nowIso(),
 }));
 
@@ -121,7 +102,7 @@ export const demoSubstitutions: Substitution[] = [
     substituteTeacherName: "Bruno Queiroz Gola",
     discipline: "Biologia",
     classGroup: "3º Administração",
-    roomId: "room-4",
+    roomId: "room-1",
     roomName: "Sala 01",
     createdAt: nowIso(),
   },
@@ -134,12 +115,12 @@ export const demoSchedules: Schedule[] = [
     teacherName: "Ana Beatriz Martins",
     discipline: "Matemática",
     classGroup: "1º DS",
-    roomId: "room-4",
+    roomId: "room-1",
     roomName: "Sala 01",
     weekday: new Date().getDay() || 1,
     periodLabel: "1º período",
-    startTime: "07:00",
-    endTime: "07:50",
+    startTime: "07:30",
+    endTime: "08:20",
   },
   {
     id: "schedule-2",
@@ -147,12 +128,12 @@ export const demoSchedules: Schedule[] = [
     teacherName: "Bruno Queiroz Gola",
     discipline: "Português",
     classGroup: "2º DS",
-    roomId: "room-5",
+    roomId: "room-2",
     roomName: "Sala 02",
     weekday: new Date().getDay() || 1,
     periodLabel: "2º período",
-    startTime: "07:50",
-    endTime: "08:40",
+    startTime: "08:20",
+    endTime: "09:10",
   },
 ];
 

@@ -163,9 +163,6 @@ create policy "deny anon direct access to notifications"
 
 insert into public.rooms (name, floor, kind)
 values
-  ('Auditório', '', 'Evento'),
-  ('Lab. Informática', '', 'Laboratório'),
-  ('Lab. Química', '', 'Laboratório'),
   ('Sala 01', '', 'Sala'),
   ('Sala 02', '', 'Sala'),
   ('Sala 03', '', 'Sala'),
@@ -174,7 +171,6 @@ values
   ('Sala 06', '', 'Sala'),
   ('Sala 07', '', 'Sala'),
   ('Sala 08', '', 'Sala'),
-  ('Sala Maker', '', 'Laboratório'),
   ('Sala 09', '', 'Sala'),
   ('Sala 10', '', 'Sala'),
   ('Sala 11', '', 'Sala'),
@@ -209,7 +205,11 @@ values
   ('Sala 40', '', 'Sala'),
   ('Sala 41', '', 'Sala'),
   ('Sala 42', '', 'Sala'),
-  ('Sala 43', '', 'Sala')
+  ('Sala 43', '', 'Sala'),
+  ('Sala 44', '', 'Sala'),
+  ('Sala 45', '', 'Sala'),
+  ('Sala 46', '', 'Sala'),
+  ('Sala 47', '', 'Sala')
 on conflict (name) do nothing;
 
 insert into public.notices (title, body, category)
