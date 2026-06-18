@@ -229,7 +229,7 @@ function Logo({ compact = false }: { compact?: boolean }) {
       </div>
       {!compact && (
         <div className="leading-none">
-          <div className="text-xl font-black tracking-wide text-[#2b174f] dark:text-white">GESTECC</div>
+          <div className="text-xl font-black tracking-wide text-[#2b174f] dark:text-white">GESTEC</div>
           <div className="mt-1 text-[10px] font-bold uppercase tracking-[0.24em] text-[#e95635]">
             Programando Sempre
           </div>
@@ -490,7 +490,7 @@ export function GesteccApp() {
                   Organização inteligente
                 </p>
                 <h1 className="mt-4 text-4xl font-black leading-tight text-[#17102b] dark:text-white sm:text-5xl">
-                  Bem-vindo à GestECC para a rotina escolar da ETEC.
+                  Bem-vindo à GESTEC para a rotina escolar da ETEC.
                 </h1>
                 <p className="mt-5 max-w-md text-base leading-7 text-zinc-600 dark:text-zinc-300">
                   Gerencie horários, salas, substituições, avisos e solicitações de acesso em um painel rápido, moderno e sempre atualizado.
@@ -1292,6 +1292,11 @@ function SchedulesManager({
   loading: boolean;
   postAction: (action: string, payload?: Record<string, string | number | null | undefined>) => Promise<boolean>;
 }) {
+  const [selectedDiscipline, setSelectedDiscipline] = useState("");
+  const teachersByDiscipline = selectedDiscipline
+    ? data.teachers.filter((teacher) => teacher.discipline === selectedDiscipline)
+    : data.teachers;
+
   return (
     <section className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.04]">
       <div className="mb-4 flex items-center justify-between gap-4">
@@ -1307,6 +1312,7 @@ function SchedulesManager({
           onSubmit={async (event) => {
             event.preventDefault();
             const ok = await postAction("addSchedule", {
+              discipline: getFormString(event.currentTarget, "discipline"),
               teacherId: getFormString(event.currentTarget, "teacherId"),
               weekday: Number(getFormString(event.currentTarget, "weekday")),
               periodLabel: getFormString(event.currentTarget, "periodLabel"),
@@ -1317,13 +1323,28 @@ function SchedulesManager({
             });
             if (ok) {
               event.currentTarget.reset();
+              setSelectedDiscipline("");
               setScheduleOpen(false);
             }
           }}
         >
+          <SelectInput
+            label="Disciplina da aula"
+            name="discipline"
+            value={selectedDiscipline}
+            onChange={(event) => setSelectedDiscipline(event.currentTarget.value)}
+            required
+          >
+            <option value="" disabled>Selecione</option>
+            {DISCIPLINES.map((discipline) => <option key={discipline}>{discipline}</option>)}
+          </SelectInput>
           <SelectInput label="Professor" name="teacherId" defaultValue="" required>
             <option value="" disabled>Selecione</option>
-            {data.teachers.map((teacher) => <option key={teacher.id} value={teacher.id}>{teacher.fullName}</option>)}
+            {teachersByDiscipline.map((teacher) => (
+              <option key={teacher.id} value={teacher.id}>
+                {teacher.fullName} · {teacher.discipline}
+              </option>
+            ))}
           </SelectInput>
           <SelectInput label="Dia" name="weekday" defaultValue="1" required>
             {workWeek.map((day) => <option key={day.value} value={day.value}>{day.label}</option>)}
@@ -1336,9 +1357,22 @@ function SchedulesManager({
             <option value="" disabled>Selecione</option>
             {data.rooms.map((room) => <option key={room.id} value={room.id}>{room.name}</option>)}
           </SelectInput>
+          {selectedDiscipline && teachersByDiscipline.length === 0 && (
+            <p className="self-end rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-700 dark:border-amber-900/70 dark:bg-amber-950/30 dark:text-amber-200">
+              Nenhum professor aprovado para esta disciplina.
+            </p>
+          )}
           <div className="flex items-end gap-2 md:col-span-2">
             <Button type="submit" disabled={loading}>Salvar horário</Button>
-            <Button variant="secondary" onClick={() => setScheduleOpen(false)}>Cancelar</Button>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setSelectedDiscipline("");
+                setScheduleOpen(false);
+              }}
+            >
+              Cancelar
+            </Button>
           </div>
         </form>
       )}

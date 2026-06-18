@@ -76,6 +76,20 @@ export const demoNotices: Notice[] = [
   },
 ];
 
+function classroomFloor(number: number) {
+  if (number <= 3) return "Térreo";
+  if (number <= 6) return "1º andar";
+  if (number <= 17) return "2º andar";
+  if (number <= 27) return "3º andar";
+  if (number <= 37) return "4º andar";
+  return "Bloco B";
+}
+
+const additionalClassrooms = Array.from({ length: 35 }, (_, index) => {
+  const number = index + 9;
+  return [`Sala ${String(number).padStart(2, "0")}`, classroomFloor(number), "Sala"] as const;
+});
+
 export const demoRooms: Room[] = [
   ["Auditório", "Térreo", "Evento"],
   ["Lab. Informática", "2º andar", "Laboratório"],
@@ -89,6 +103,7 @@ export const demoRooms: Room[] = [
   ["Sala 07", "2º andar", "Sala"],
   ["Sala 08", "2º andar", "Sala"],
   ["Sala Maker", "Bloco B", "Laboratório"],
+  ...additionalClassrooms,
 ].map(([name, floor, kind], index) => ({
   id: `room-${index + 1}`,
   name,

@@ -1,4 +1,4 @@
-# GestECC
+# GESTEC
 
 Sistema de gestão escolar para organização da rotina da ETEC: login da gestão, solicitação/aprovação de professores, mural de avisos, status de salas, substituições, horários, reservas e perfil do professor.
 

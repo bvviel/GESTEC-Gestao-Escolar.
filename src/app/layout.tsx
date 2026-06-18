@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "GestECC | Gestão Escolar",
+  title: "GESTEC | Gestão Escolar",
   description: "Sistema moderno para organização escolar da ETEC.",
 };
 

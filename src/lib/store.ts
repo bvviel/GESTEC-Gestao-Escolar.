@@ -584,7 +584,7 @@ async function approveRequest(claims: SessionClaims, requestId: string) {
       targetRole: "teacher",
       teacherId: teacher.id,
       title: "Cadastro aprovado",
-      body: "Sua solicitação foi aprovada. Você já pode acessar o GestECC.",
+      body: "Sua solicitação foi aprovada. Você já pode acessar o GESTEC.",
       kind: "request_approved",
       readAt: null,
       payload: null,
@@ -633,7 +633,7 @@ async function approveRequest(claims: SessionClaims, requestId: string) {
     target_role: "teacher",
     teacher_id: teacher.id,
     title: "Cadastro aprovado",
-    body: "Sua solicitação foi aprovada. Você já pode acessar o GestECC.",
+    body: "Sua solicitação foi aprovada. Você já pode acessar o GESTEC.",
     kind: "request_approved",
   });
   if (notificationError) rowError(notificationError.message);
@@ -808,11 +808,15 @@ export async function performAction(
     const room = await lookupRoom(String(payload.roomId ?? ""));
     const classGroup = String(payload.classGroup ?? "").trim();
     const periodLabel = String(payload.periodLabel ?? "").trim();
+    const discipline = String(payload.discipline ?? teacher.discipline).trim();
     const startTime = String(payload.startTime ?? "");
     const endTime = String(payload.endTime ?? "");
     const weekday = Number(payload.weekday ?? 1);
-    if (!classGroup || !periodLabel || !startTime || !endTime) {
+    if (!classGroup || !periodLabel || !discipline || !startTime || !endTime) {
       rowError("Preencha todos os dados do horário.");
+    }
+    if (teacher.discipline !== discipline) {
+      rowError(`Selecione um professor aprovado para ${discipline}.`);
     }
 
     if (!isSupabaseConfigured()) {
@@ -820,7 +824,7 @@ export async function performAction(
         id: newId("schedule"),
         teacherId: teacher.id,
         teacherName: teacher.fullName,
-        discipline: teacher.discipline,
+        discipline,
         classGroup,
         roomId: room.id,
         roomName: room.name,
@@ -835,7 +839,7 @@ export async function performAction(
       const { error } = await supabase.from("schedules").insert({
         teacher_id: teacher.id,
         teacher_name: teacher.fullName,
-        discipline: teacher.discipline,
+        discipline,
         class_group: classGroup,
         room_id: room.id,
         room_name: room.name,
