@@ -544,9 +544,17 @@ export function GesteccApp() {
               )}
 
               {authView === "select" && (
-                <div>
-                  <p className="text-sm font-bold text-zinc-500 dark:text-zinc-400">Fazer login</p>
-                  <h2 className="mt-2 text-3xl font-black">Selecione seu perfil</h2>
+                <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition-all duration-200 dark:border-white/10 dark:bg-white/[0.04]">
+                  <div className="mb-5 flex items-center justify-between">
+                    <span className="inline-flex items-center gap-2 rounded-full bg-orange-50 px-3 py-1.5 text-xs font-black uppercase tracking-wide text-[#e95635] dark:bg-orange-500/10">
+                      <span className="h-2 w-2 rounded-full bg-[#e95635]" />
+                      Fazer login
+                    </span>
+                    <span className="rounded-full bg-zinc-100 px-3 py-1.5 text-xs font-bold text-zinc-500 dark:bg-white/10 dark:text-zinc-300">
+                      GESTEC
+                    </span>
+                  </div>
+                  <h2 className="text-3xl font-black leading-tight">Selecione seu perfil</h2>
                   <div className="mt-8 grid gap-4">
                     <button
                       type="button"
@@ -1575,8 +1583,13 @@ function NoticesManager({
 }) {
   return (
     <section className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.04]">
-      <div className="mb-4 flex items-center justify-between gap-4">
-        <h2 className="font-black">Gerenciar Avisos</h2>
+      <div className="mb-5 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+        <div>
+          <div className="inline-flex items-center gap-2 rounded-full bg-orange-50 px-3 py-1.5 text-xs font-black uppercase tracking-wide text-[#e95635] dark:bg-orange-500/10">
+            <Bell size={14} /> Avisos
+          </div>
+          <h2 className="mt-3 text-xl font-black">Gerenciar Avisos</h2>
+        </div>
         <Button onClick={() => setNoticeOpen(!noticeOpen)}>
           <Plus size={15} /> Novo Aviso
         </Button>
@@ -1584,17 +1597,18 @@ function NoticesManager({
 
       {noticeOpen && (
         <form
-          className="mb-5 grid gap-3 rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-white/10 dark:bg-white/[0.04]"
+          className="mb-5 grid gap-4 rounded-xl border border-orange-100 bg-orange-50/50 p-4 shadow-sm dark:border-orange-500/20 dark:bg-orange-950/10"
           onSubmit={async (event) => {
             event.preventDefault();
+            const form = event.currentTarget;
             const ok = await postAction("addNotice", {
-              title: getFormString(event.currentTarget, "title"),
-              category: getFormString(event.currentTarget, "category"),
-              body: getFormString(event.currentTarget, "body"),
-              expiresAt: getFormString(event.currentTarget, "expiresAt") || null,
+              title: getFormString(form, "title"),
+              category: getFormString(form, "category"),
+              body: getFormString(form, "body"),
+              expiresAt: getFormString(form, "expiresAt") || null,
             });
             if (ok) {
-              event.currentTarget.reset();
+              form.reset();
               setNoticeOpen(false);
             }
           }}
@@ -1610,11 +1624,11 @@ function NoticesManager({
               name="body"
               rows={4}
               required
-              className="rounded-xl border border-zinc-200 bg-white px-4 py-3 text-base text-zinc-950 outline-none transition placeholder:text-zinc-400 focus:border-[#e95635] focus:ring-4 focus:ring-orange-100 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-zinc-500 dark:focus:ring-orange-950/40"
+              className="rounded-xl border border-zinc-200 bg-white px-4 py-3 text-base text-zinc-950 outline-none transition-all duration-200 placeholder:text-zinc-400 hover:border-zinc-300 focus:border-[#e95635] focus:ring-4 focus:ring-orange-100 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-zinc-500 dark:hover:border-white/20 dark:focus:ring-orange-950/40"
               placeholder="Detalhe o comunicado para todos os usuários."
             />
           </label>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button type="submit" disabled={loading}>Publicar Aviso</Button>
             <Button variant="secondary" onClick={() => setNoticeOpen(false)}>Cancelar</Button>
           </div>
@@ -1623,9 +1637,12 @@ function NoticesManager({
 
       <div className="grid gap-3">
         {data.notices.map((notice) => (
-          <article key={notice.id} className="flex items-start justify-between gap-4 rounded-xl border border-zinc-200 p-4 dark:border-white/10">
-            <div>
-              <div className="flex items-center gap-2">
+          <article
+            key={notice.id}
+            className="group flex items-start justify-between gap-4 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-orange-100 hover:shadow-md dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-orange-500/30"
+          >
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
                 <h3 className="font-black">{notice.title}</h3>
                 <span className="rounded-full bg-orange-50 px-2 py-1 text-[11px] font-bold text-[#e95635] dark:bg-orange-500/10">
                   {notice.category}
@@ -1636,7 +1653,7 @@ function NoticesManager({
             </div>
             <button
               type="button"
-              className="rounded-lg p-2 text-zinc-400 transition hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/30"
+              className="rounded-lg p-2 text-zinc-400 transition-all duration-200 hover:-translate-y-0.5 hover:bg-rose-50 hover:text-rose-600 group-hover:text-rose-500 active:scale-95 dark:hover:bg-rose-950/30"
               onClick={() => {
                 if (window.confirm("Tem certeza que deseja excluir este aviso?")) {
                   void postAction("deleteNotice", { noticeId: notice.id });
