@@ -46,14 +46,15 @@ const periodOptions = [
   { label: "1º período", start: "07:30", end: "08:20" },
   { label: "2º período", start: "08:20", end: "09:10" },
   { label: "3º período", start: "09:10", end: "10:00" },
-  { label: "4º período", start: "10:00", end: "10:50" },
-  { label: "5º período", start: "10:50", end: "11:40" },
-  { label: "6º período", start: "11:40", end: "12:30" },
-  { label: "7º período", start: "12:30", end: "13:20" },
+  { label: "4º período", start: "10:15", end: "11:05" },
+  { label: "5º período", start: "11:05", end: "11:55" },
+  { label: "6º período", start: "11:55", end: "12:45" },
+  { label: "7º período", start: "12:45", end: "13:35" },
 ].map((period) => ({
   ...period,
   value: `${period.label}|${period.start}|${period.end}`,
 }));
+const schoolBreak = { label: "Intervalo", start: "10:00", end: "10:15" };
 
 const emptyData: AppSnapshot = {
   configured: false,
@@ -1460,6 +1461,9 @@ function SchedulesManager({
             <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
               Escolha a disciplina, o professor, a sala e um dos 7 períodos.
             </p>
+            <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1.5 text-xs font-black text-amber-700 dark:bg-amber-500/10 dark:text-amber-200">
+              <Clock size={14} /> {schoolBreak.label}: {schoolBreak.start}-{schoolBreak.end}
+            </div>
           </div>
           <SelectInput
             label="Disciplina da aula"
