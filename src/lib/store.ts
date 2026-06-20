@@ -775,6 +775,92 @@ function validateSchedulePayload(payload: ActionPayload, fallbackDiscipline: str
   return { classGroup, periodLabel, discipline, startTime, endTime, weekday };
 }
 
+type ScheduleDetails = ReturnType<typeof validateSchedulePayload>;
+
+function sameScheduleSlot(schedule: Schedule, details: ScheduleDetails) {
+  return (
+    schedule.weekday === details.weekday &&
+    schedule.startTime.slice(0, 5) === details.startTime.slice(0, 5) &&
+    schedule.endTime.slice(0, 5) === details.endTime.slice(0, 5) &&
+    schedule.discipline.trim().toLocaleLowerCase("pt-BR") === details.discipline.trim().toLocaleLowerCase("pt-BR")
+  );
+}
+
+async function findScheduleSlotConflicts(details: ScheduleDetails, excludeScheduleId?: string) {
+  if (!isSupabaseConfigured()) {
+    return memory().schedules.filter((schedule) =>
+      schedule.id !== excludeScheduleId && sameScheduleSlot(schedule, details),
+    );
+  }
+
+  const supabase = getSupabaseAdmin();
+  if (!supabase) rowError("Supabase nÃ£o configurado.");
+  const { data, error } = await supabase
+    .from("schedules")
+    .select("*")
+    .eq("weekday", details.weekday)
+    .order("created_at", { ascending: true });
+  if (error) rowError(error.message);
+
+  return (data ?? [])
+    .map((row) => mapSchedule(row as Record<string, unknown>))
+    .filter((schedule) => schedule.id !== excludeScheduleId && sameScheduleSlot(schedule, details));
+}
+
+function applyScheduleDetails(schedule: Schedule, teacher: Teacher, room: Room, details: ScheduleDetails) {
+  schedule.teacherId = teacher.id;
+  schedule.teacherName = teacher.fullName;
+  schedule.discipline = details.discipline;
+  schedule.classGroup = details.classGroup;
+  schedule.roomId = room.id;
+  schedule.roomName = room.name;
+  schedule.weekday = details.weekday;
+  schedule.periodLabel = details.periodLabel;
+  schedule.startTime = details.startTime;
+  schedule.endTime = details.endTime;
+}
+
+async function updateScheduleRecord(scheduleId: string, teacher: Teacher, room: Room, details: ScheduleDetails) {
+  if (!isSupabaseConfigured()) {
+    applyScheduleDetails(findMemorySchedule(memory(), scheduleId), teacher, room, details);
+    return;
+  }
+
+  const supabase = getSupabaseAdmin();
+  if (!supabase) rowError("Supabase nÃ£o configurado.");
+  const { error } = await supabase
+    .from("schedules")
+    .update({
+      teacher_id: teacher.id,
+      teacher_name: teacher.fullName,
+      discipline: details.discipline,
+      class_group: details.classGroup,
+      room_id: room.id,
+      room_name: room.name,
+      weekday: details.weekday,
+      period_label: details.periodLabel,
+      start_time: details.startTime,
+      end_time: details.endTime,
+    })
+    .eq("id", scheduleId);
+  if (error) rowError(error.message);
+}
+
+async function deleteScheduleRecords(scheduleIds: string[]) {
+  if (scheduleIds.length === 0) return;
+
+  if (!isSupabaseConfigured()) {
+    const state = memory();
+    state.schedules = state.schedules.filter((schedule) => !scheduleIds.includes(schedule.id));
+    return;
+  }
+
+  const supabase = getSupabaseAdmin();
+  if (!supabase) rowError("Supabase nÃ£o configurado.");
+  const { error } = await supabase.from("schedules").delete().in("id", scheduleIds);
+  if (error) rowError(error.message);
+}
+
 async function addTeacherNotification(
   teacherId: string,
   title: string,
@@ -1006,28 +1092,32 @@ export async function performAction(
     requireManager(claims);
     const teacher = await lookupTeacher(String(payload.teacherId ?? ""));
     const room = await lookupRoom(String(payload.roomId ?? ""));
-    const { classGroup, periodLabel, discipline, startTime, endTime, weekday } = validateSchedulePayload(
-      payload,
-      teacher.discipline,
-    );
-    if (teacher.discipline !== discipline) {
-      rowError(`Selecione um professor aprovado para ${discipline}.`);
+    const details = validateSchedulePayload(payload, teacher.discipline);
+    if (teacher.discipline !== details.discipline) {
+      rowError(`Selecione um professor aprovado para ${details.discipline}.`);
     }
 
-    let scheduleId: string | null = null;
-    if (!isSupabaseConfigured()) {
+    const conflicts = await findScheduleSlotConflicts(details);
+    const replacedSchedule = conflicts[0] ?? null;
+    const extraConflictIds = conflicts.slice(1).map((schedule) => schedule.id);
+    let scheduleId = replacedSchedule?.id ?? null;
+
+    if (replacedSchedule) {
+      await updateScheduleRecord(replacedSchedule.id, teacher, room, details);
+      await deleteScheduleRecords(extraConflictIds);
+    } else if (!isSupabaseConfigured()) {
       const schedule: Schedule = {
         id: newId("schedule"),
         teacherId: teacher.id,
         teacherName: teacher.fullName,
-        discipline,
-        classGroup,
+        discipline: details.discipline,
+        classGroup: details.classGroup,
         roomId: room.id,
         roomName: room.name,
-        weekday,
-        periodLabel,
-        startTime,
-        endTime,
+        weekday: details.weekday,
+        periodLabel: details.periodLabel,
+        startTime: details.startTime,
+        endTime: details.endTime,
       };
       scheduleId = schedule.id;
       memory().schedules.push(schedule);
@@ -1039,14 +1129,14 @@ export async function performAction(
         .insert({
           teacher_id: teacher.id,
           teacher_name: teacher.fullName,
-          discipline,
-          class_group: classGroup,
+          discipline: details.discipline,
+          class_group: details.classGroup,
           room_id: room.id,
           room_name: room.name,
-          weekday,
-          period_label: periodLabel,
-          start_time: startTime,
-          end_time: endTime,
+          weekday: details.weekday,
+          period_label: details.periodLabel,
+          start_time: details.startTime,
+          end_time: details.endTime,
         })
         .select("id")
         .single();
@@ -1055,11 +1145,20 @@ export async function performAction(
     }
     await addTeacherNotification(
       teacher.id,
-      "Nova aula cadastrada",
-      `${discipline} em ${classGroup}, ${weekdaysLabel(weekday)}, ${periodLabel}, sala ${room.name}.`,
-      "schedule_created",
-      { scheduleId },
+      replacedSchedule ? "Aula substituída na grade" : "Nova aula cadastrada",
+      `${details.discipline} em ${details.classGroup}, ${weekdaysLabel(details.weekday)}, ${details.periodLabel}, sala ${room.name}.`,
+      replacedSchedule ? "schedule_replaced" : "schedule_created",
+      { scheduleId, replacedScheduleId: replacedSchedule?.id ?? null },
     );
+    if (replacedSchedule && replacedSchedule.teacherId !== teacher.id) {
+      await addTeacherNotification(
+        replacedSchedule.teacherId,
+        "Aula substituída pela gestão",
+        `${replacedSchedule.discipline} em ${replacedSchedule.classGroup}, ${weekdaysLabel(replacedSchedule.weekday)}, ${replacedSchedule.periodLabel}, sala ${replacedSchedule.roomName}, foi substituída por outra aula da mesma disciplina e período.`,
+        "schedule_replaced",
+        { scheduleId, replacedScheduleId: replacedSchedule.id },
+      );
+    }
     return getSnapshot(claims);
   }
 
@@ -1069,13 +1168,15 @@ export async function performAction(
     const current = await lookupSchedule(scheduleId);
     const teacher = await lookupTeacher(String(payload.teacherId ?? current.teacherId));
     const room = await lookupRoom(String(payload.roomId ?? current.roomId ?? ""));
-    const { classGroup, periodLabel, discipline, startTime, endTime, weekday } = validateSchedulePayload(
+    const details = validateSchedulePayload(
       payload,
       teacher.discipline,
     );
-    if (teacher.discipline !== discipline) {
-      rowError(`Selecione um professor aprovado para ${discipline}.`);
+    if (teacher.discipline !== details.discipline) {
+      rowError(`Selecione um professor aprovado para ${details.discipline}.`);
     }
+    const { classGroup, periodLabel, discipline, startTime, endTime, weekday } = details;
+    const conflicts = await findScheduleSlotConflicts(details, scheduleId);
 
     if (!isSupabaseConfigured()) {
       const target = findMemorySchedule(memory(), scheduleId);
@@ -1109,6 +1210,7 @@ export async function performAction(
         .eq("id", scheduleId);
       if (error) rowError(error.message);
     }
+    await deleteScheduleRecords(conflicts.map((schedule) => schedule.id));
 
     await addTeacherNotification(
       teacher.id,
