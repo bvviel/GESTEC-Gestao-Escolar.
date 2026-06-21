@@ -4,6 +4,7 @@ import {
   Bell,
   BookOpen,
   Calendar,
+  Check,
   CheckCheck,
   CheckCircle2,
   ChevronLeft,
@@ -894,30 +895,40 @@ export function GesteccApp() {
                     </p>
                   </div>
                   <TextInput label="Nome completo" name="fullName" placeholder="Prof. Maria da Silva" required />
-                  <fieldset className="grid gap-3 rounded-2xl border border-zinc-200 bg-zinc-50 p-4 dark:border-white/10 dark:bg-white/[0.04]">
-                    <legend className="px-1 text-sm font-black text-zinc-700 dark:text-zinc-200">
-                      Disciplinas que leciona
-                    </legend>
-                    <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
-                      Selecione uma ou mais disciplinas. A primeira marcada será usada como principal.
-                    </p>
-                    <div className="grid max-h-56 gap-2 overflow-auto pr-1 sm:grid-cols-2">
+                  <section
+                    aria-labelledby="teacher-disciplines-title"
+                    className="grid gap-4 rounded-2xl border border-zinc-200 bg-zinc-50/80 p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.04]"
+                  >
+                    <div>
+                      <h3 id="teacher-disciplines-title" className="text-base font-black text-zinc-900 dark:text-white">
+                        Disciplinas que leciona
+                      </h3>
+                      <p className="mt-1 text-sm font-semibold leading-relaxed text-zinc-500 dark:text-zinc-400">
+                        Selecione uma ou mais disciplinas. A primeira marcada será usada como principal.
+                      </p>
+                    </div>
+                    <div className="grid max-h-64 gap-2 overflow-y-auto pr-2 sm:grid-cols-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-zinc-300 dark:[&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-2">
                       {DISCIPLINES.map((discipline) => (
                         <label
                           key={discipline}
-                          className="flex cursor-pointer items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm font-bold transition hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-emerald-50 dark:border-white/10 dark:bg-white/5 dark:hover:border-emerald-400/30 dark:hover:bg-emerald-400/10"
+                          className="group flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm font-black text-zinc-800 transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-emerald-50 hover:shadow-sm dark:border-white/10 dark:bg-[#07120d] dark:text-zinc-100 dark:hover:border-emerald-400/30 dark:hover:bg-emerald-400/10"
                         >
                           <input
                             type="checkbox"
                             name="disciplines"
                             value={discipline}
-                            className="h-4 w-4 accent-[#36c486]"
+                            className="peer sr-only"
                           />
-                          <span>{discipline}</span>
+                          <span className="grid h-5 w-5 shrink-0 place-items-center rounded-md border border-zinc-300 bg-white text-transparent transition-all duration-200 peer-checked:border-[#36c486] peer-checked:bg-[#36c486] peer-checked:text-white dark:border-white/20 dark:bg-white/5">
+                            <Check size={14} strokeWidth={3} />
+                          </span>
+                          <span className="leading-snug transition-colors peer-checked:text-[#0f8a61] dark:peer-checked:text-emerald-200">
+                            {discipline}
+                          </span>
                         </label>
                       ))}
                     </div>
-                  </fieldset>
+                  </section>
                   <SelectInput label="Tipo de vínculo" name="contractType" defaultValue="" required>
                     <option value="" disabled>
                       Selecione o vínculo
