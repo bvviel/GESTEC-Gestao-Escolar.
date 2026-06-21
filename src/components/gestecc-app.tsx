@@ -293,7 +293,7 @@ function SelectInput({
     <label className={cx("grid gap-2 text-sm font-semibold text-zinc-700 dark:text-zinc-200", className)}>
       {label}
       <select
-        className="h-12 rounded-xl border border-zinc-200 bg-white px-4 text-base text-zinc-950 outline-none transition-all duration-200 hover:border-zinc-300 focus:border-[#36c486] focus:ring-4 focus:ring-emerald-100 dark:border-white/10 dark:bg-[#07120d] dark:text-white dark:hover:border-white/20 dark:focus:ring-emerald-950/40"
+        className="h-12 rounded-xl border border-zinc-200 bg-white px-4 text-base text-zinc-950 outline-none transition-all duration-200 hover:border-zinc-300 focus:border-[#36c486] focus:ring-4 focus:ring-emerald-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/10 dark:bg-[#07120d] dark:text-white dark:hover:border-white/20 dark:focus:ring-emerald-950/40"
         {...props}
       >
         {children}
@@ -1953,7 +1953,7 @@ function SchedulesManager({
   const displayedClassGroups = activeScheduleFilter ? filteredClassGroups : allClassGroups;
   const teachersByDiscipline = selectedDiscipline
     ? data.teachers.filter((teacher) => teacherTeaches(teacher, selectedDiscipline))
-    : data.teachers;
+    : [];
   const selectedPeriodData = periodFromValue(selectedPeriod, scheduleShift);
   const periodChoices = currentPeriodOptions.some((period) => period.value === selectedPeriod)
     ? currentPeriodOptions
@@ -2080,8 +2080,17 @@ function SchedulesManager({
             <option value="" disabled>Selecione</option>
             {DISCIPLINES.map((discipline) => <option key={discipline}>{discipline}</option>)}
           </SelectInput>
-          <SelectInput label="Professor" name="teacherId" defaultValue={editingSchedule?.teacherId ?? ""} required>
-            <option value="" disabled>Selecione</option>
+          <SelectInput
+            key={`${editingSchedule?.id ?? "new"}-${selectedDiscipline || "empty"}`}
+            label="Professor"
+            name="teacherId"
+            defaultValue={selectedDiscipline ? editingSchedule?.teacherId ?? "" : ""}
+            disabled={!selectedDiscipline}
+            required
+          >
+            <option value="" disabled>
+              {selectedDiscipline ? "Selecione" : "Escolha uma disciplina primeiro"}
+            </option>
             {teachersByDiscipline.map((teacher) => (
               <option key={teacher.id} value={teacher.id}>
                 {teacher.fullName} · {disciplineListLabel(teacher)}
