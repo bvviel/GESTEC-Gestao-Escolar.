@@ -10,6 +10,7 @@ import type {
   Room,
   Schedule,
   SessionClaims,
+  Shift,
   Substitution,
   Teacher,
   TeacherRequest,
@@ -119,6 +120,56 @@ function contractTypeText(value: ContractType) {
   return value === "permanent" ? "concursado" : "não concursado";
 }
 
+function uniqueStrings(values: string[]) {
+  const seen = new Set<string>();
+  return values
+    .map((value) => value.trim())
+    .filter(Boolean)
+    .filter((value) => {
+      const key = value.toLocaleLowerCase("pt-BR");
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+}
+
+function arrayFromUnknown(value: unknown) {
+  if (Array.isArray(value)) return value.map((item) => String(item));
+  if (typeof value === "string") {
+    return value
+      .split(/[;,]/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+  return [];
+}
+
+function normalizeDisciplines(value: unknown, fallback = "") {
+  const values = uniqueStrings([...arrayFromUnknown(value), fallback].filter(Boolean));
+  return values.length > 0 ? values : fallback ? [fallback] : [];
+}
+
+function normalizeShift(value: unknown): Shift {
+  return value === "afternoon" || value === "night" ? value : "morning";
+}
+
+function shiftFromTime(startTime: string): Shift {
+  const normalized = startTime.slice(0, 5);
+  if (normalized >= "18:30") return "night";
+  if (normalized >= "13:00") return "afternoon";
+  return "morning";
+}
+
+function teacherCanTeach(teacher: Pick<Teacher, "discipline" | "disciplines">, discipline: string) {
+  const normalized = discipline.trim().toLocaleLowerCase("pt-BR");
+  return normalizeDisciplines(teacher.disciplines, teacher.discipline)
+    .some((item) => item.toLocaleLowerCase("pt-BR") === normalized);
+}
+
+function isMissingColumnError(error: { message?: string; code?: string }) {
+  return error.code === "42703" || /column .* does not exist|schema cache|could not find/i.test(error.message ?? "");
+}
+
 function getManagerCredentials() {
   return {
     username: process.env.GESTECC_MANAGER_USERNAME,
@@ -135,10 +186,12 @@ function normalizeManagerUsername(value: string) {
 }
 
 function mapTeacher(row: Record<string, unknown>): Teacher {
+  const discipline = String(row.discipline ?? "");
   return {
     id: String(row.id),
     fullName: String(row.full_name),
-    discipline: String(row.discipline ?? ""),
+    discipline,
+    disciplines: normalizeDisciplines(row.disciplines, discipline),
     email: String(row.email),
     contractType: normalizeContractType(String(row.contract_type ?? (row.contract_end ? "temporary" : "permanent"))),
     contractStart: String(row.contract_start),
@@ -150,10 +203,12 @@ function mapTeacher(row: Record<string, unknown>): Teacher {
 }
 
 function mapRequest(row: Record<string, unknown>): TeacherRequest {
+  const discipline = String(row.discipline);
   return {
     id: String(row.id),
     fullName: String(row.full_name),
-    discipline: String(row.discipline),
+    discipline,
+    disciplines: normalizeDisciplines(row.disciplines, discipline),
     email: String(row.email),
     contractType: normalizeContractType(String(row.contract_type ?? "temporary")),
     status: String(row.status) as TeacherRequest["status"],
@@ -206,17 +261,19 @@ function mapSubstitution(row: Record<string, unknown>): Substitution {
 }
 
 function mapSchedule(row: Record<string, unknown>): Schedule {
+  const startTime = String(row.start_time).slice(0, 5);
   return {
     id: String(row.id),
     teacherId: String(row.teacher_id),
     teacherName: String(row.teacher_name),
     discipline: String(row.discipline),
+    shift: normalizeShift(row.shift ?? shiftFromTime(startTime)),
     classGroup: String(row.class_group),
     roomId: row.room_id ? String(row.room_id) : null,
     roomName: String(row.room_name),
     weekday: Number(row.weekday),
     periodLabel: String(row.period_label),
-    startTime: String(row.start_time).slice(0, 5),
+    startTime,
     endTime: String(row.end_time).slice(0, 5),
   };
 }
@@ -526,7 +583,8 @@ export async function loginTeacher(emailValue: string, password: string): Promis
 
 export async function createTeacherRequest(payload: ActionPayload) {
   const fullName = String(payload.fullName ?? "").trim();
-  const discipline = String(payload.discipline ?? "").trim();
+  const disciplines = normalizeDisciplines(payload.disciplines, String(payload.discipline ?? ""));
+  const discipline = disciplines[0] ?? "";
   const email = normalizeEmail(String(payload.email ?? ""));
   const password = String(payload.password ?? "");
   const contractType = normalizeContractType(String(payload.contractType ?? "temporary"));
@@ -550,6 +608,7 @@ export async function createTeacherRequest(payload: ActionPayload) {
       id: newId("request"),
       fullName,
       discipline,
+      disciplines,
       email,
       contractType,
       status: "pending",
@@ -561,7 +620,7 @@ export async function createTeacherRequest(payload: ActionPayload) {
     state.requestSecrets[request.id] = passwordHash;
     await addManagerNotification(
       "Nova solicitação de cadastro",
-      `${fullName} solicitou acesso como professor de ${discipline}. E-mail: ${email}. Vínculo: ${contractTypeText(contractType)}.`,
+      `${fullName} solicitou acesso como professor de ${disciplines.join(", ")}. E-mail: ${email}. Vínculo: ${contractTypeText(contractType)}.`,
       "teacher_request",
       { requestId: request.id },
     );
@@ -588,11 +647,12 @@ export async function createTeacherRequest(payload: ActionPayload) {
   if (existingRequestError) rowError(existingRequestError.message);
   if (existingRequest) rowError("Já existe uma solicitação pendente para este e-mail.");
 
-  const { data, error } = await supabase
+  let requestInsert = await supabase
     .from("teacher_requests")
     .insert({
       full_name: fullName,
       discipline,
+      disciplines,
       email,
       password_hash: passwordHash,
       contract_type: contractType,
@@ -601,12 +661,27 @@ export async function createTeacherRequest(payload: ActionPayload) {
     .select("*")
     .single();
 
-  if (error) rowError(error.message);
-  const request = mapRequest(data as Record<string, unknown>);
+  if (requestInsert.error && isMissingColumnError(requestInsert.error)) {
+    requestInsert = await supabase
+      .from("teacher_requests")
+      .insert({
+        full_name: fullName,
+        discipline,
+        email,
+        password_hash: passwordHash,
+        contract_type: contractType,
+        status: "pending",
+      })
+      .select("*")
+      .single();
+  }
+
+  if (requestInsert.error) rowError(requestInsert.error.message);
+  const request = mapRequest(requestInsert.data as Record<string, unknown>);
 
   await addManagerNotification(
     "Nova solicitação de cadastro",
-    `${fullName} solicitou acesso como professor de ${discipline}. E-mail: ${email}. Vínculo: ${contractTypeText(contractType)}.`,
+    `${fullName} solicitou acesso como professor de ${disciplines.join(", ")}. E-mail: ${email}. Vínculo: ${contractTypeText(contractType)}.`,
     "teacher_request",
     { requestId: request.id },
   );
@@ -629,6 +704,7 @@ async function approveRequest(claims: SessionClaims, requestId: string) {
       id: newId("teacher"),
       fullName: request.fullName,
       discipline: request.discipline,
+      disciplines: request.disciplines,
       email: request.email,
       contractType: request.contractType,
       contractStart,
@@ -662,13 +738,16 @@ async function approveRequest(claims: SessionClaims, requestId: string) {
 
   if (requestError) rowError(requestError.message);
   const requestData = requestRow as Record<string, unknown>;
+  const requestDiscipline = String(requestData.discipline ?? "");
+  const requestDisciplines = normalizeDisciplines(requestData.disciplines, requestDiscipline);
 
-  const { data: teacherRow, error: teacherError } = await supabase
+  let teacherInsert = await supabase
     .from("teachers")
     .insert({
       request_id: requestId,
       full_name: requestData.full_name,
-      discipline: requestData.discipline,
+      discipline: requestDiscipline,
+      disciplines: requestDisciplines,
       email: requestData.email,
       password_hash: requestData.password_hash,
       contract_type: requestData.contract_type,
@@ -681,8 +760,28 @@ async function approveRequest(claims: SessionClaims, requestId: string) {
     .select("*")
     .single();
 
-  if (teacherError) rowError(teacherError.message);
-  const teacher = mapTeacher(teacherRow as Record<string, unknown>);
+  if (teacherInsert.error && isMissingColumnError(teacherInsert.error)) {
+    teacherInsert = await supabase
+      .from("teachers")
+      .insert({
+        request_id: requestId,
+        full_name: requestData.full_name,
+        discipline: requestDiscipline,
+        email: requestData.email,
+        password_hash: requestData.password_hash,
+        contract_type: requestData.contract_type,
+        contract_start: today(),
+        contract_end: normalizeContractType(String(requestData.contract_type ?? "temporary")) === "temporary"
+          ? addYears(today(), 2)
+          : null,
+        contract_status: "active",
+      })
+      .select("*")
+      .single();
+  }
+
+  if (teacherInsert.error) rowError(teacherInsert.error.message);
+  const teacher = mapTeacher(teacherInsert.data as Record<string, unknown>);
 
   const { error: updateError } = await supabase
     .from("teacher_requests")
@@ -785,6 +884,7 @@ function validateSchedulePayload(payload: ActionPayload, fallbackDiscipline: str
   const classGroup = String(payload.classGroup ?? "").trim();
   const periodLabel = String(payload.periodLabel ?? "").trim();
   const discipline = String(payload.discipline ?? fallbackDiscipline).trim();
+  const shift = normalizeShift(payload.shift);
   const startTime = String(payload.startTime ?? "");
   const endTime = String(payload.endTime ?? "");
   const weekday = Number(payload.weekday ?? 1);
@@ -794,7 +894,7 @@ function validateSchedulePayload(payload: ActionPayload, fallbackDiscipline: str
   }
   if (weekday < 1 || weekday > 5) rowError("Selecione um dia útil para a aula.");
 
-  return { classGroup, periodLabel, discipline, startTime, endTime, weekday };
+  return { classGroup, periodLabel, discipline, shift, startTime, endTime, weekday };
 }
 
 type ScheduleDetails = ReturnType<typeof validateSchedulePayload>;
@@ -802,6 +902,7 @@ type ScheduleDetails = ReturnType<typeof validateSchedulePayload>;
 function sameScheduleSlot(schedule: Schedule, details: ScheduleDetails) {
   return (
     schedule.weekday === details.weekday &&
+    schedule.shift === details.shift &&
     schedule.startTime.slice(0, 5) === details.startTime.slice(0, 5) &&
     schedule.endTime.slice(0, 5) === details.endTime.slice(0, 5) &&
     schedule.discipline.trim().toLocaleLowerCase("pt-BR") === details.discipline.trim().toLocaleLowerCase("pt-BR")
@@ -816,7 +917,7 @@ async function findScheduleSlotConflicts(details: ScheduleDetails, excludeSchedu
   }
 
   const supabase = getSupabaseAdmin();
-  if (!supabase) rowError("Supabase nÃ£o configurado.");
+  if (!supabase) rowError("Supabase não configurado.");
   const { data, error } = await supabase
     .from("schedules")
     .select("*")
@@ -833,6 +934,7 @@ function applyScheduleDetails(schedule: Schedule, teacher: Teacher, room: Room, 
   schedule.teacherId = teacher.id;
   schedule.teacherName = teacher.fullName;
   schedule.discipline = details.discipline;
+  schedule.shift = details.shift;
   schedule.classGroup = details.classGroup;
   schedule.roomId = room.id;
   schedule.roomName = room.name;
@@ -849,13 +951,14 @@ async function updateScheduleRecord(scheduleId: string, teacher: Teacher, room: 
   }
 
   const supabase = getSupabaseAdmin();
-  if (!supabase) rowError("Supabase nÃ£o configurado.");
+  if (!supabase) rowError("Supabase não configurado.");
   const { error } = await supabase
     .from("schedules")
     .update({
       teacher_id: teacher.id,
       teacher_name: teacher.fullName,
       discipline: details.discipline,
+      shift: details.shift,
       class_group: details.classGroup,
       room_id: room.id,
       room_name: room.name,
@@ -865,6 +968,25 @@ async function updateScheduleRecord(scheduleId: string, teacher: Teacher, room: 
       end_time: details.endTime,
     })
     .eq("id", scheduleId);
+  if (error && isMissingColumnError(error)) {
+    const fallback = await supabase
+      .from("schedules")
+      .update({
+        teacher_id: teacher.id,
+        teacher_name: teacher.fullName,
+        discipline: details.discipline,
+        class_group: details.classGroup,
+        room_id: room.id,
+        room_name: room.name,
+        weekday: details.weekday,
+        period_label: details.periodLabel,
+        start_time: details.startTime,
+        end_time: details.endTime,
+      })
+      .eq("id", scheduleId);
+    if (fallback.error) rowError(fallback.error.message);
+    return;
+  }
   if (error) rowError(error.message);
 }
 
@@ -878,7 +1000,7 @@ async function deleteScheduleRecords(scheduleIds: string[]) {
   }
 
   const supabase = getSupabaseAdmin();
-  if (!supabase) rowError("Supabase nÃ£o configurado.");
+  if (!supabase) rowError("Supabase não configurado.");
   const { error } = await supabase.from("schedules").delete().in("id", scheduleIds);
   if (error) rowError(error.message);
 }
@@ -1248,7 +1370,7 @@ export async function performAction(
     const teacher = await lookupTeacher(String(payload.teacherId ?? ""));
     const room = await lookupRoom(String(payload.roomId ?? ""));
     const details = validateSchedulePayload(payload, teacher.discipline);
-    if (teacher.discipline !== details.discipline) {
+    if (!teacherCanTeach(teacher, details.discipline)) {
       rowError(`Selecione um professor aprovado para ${details.discipline}.`);
     }
 
@@ -1266,6 +1388,7 @@ export async function performAction(
         teacherId: teacher.id,
         teacherName: teacher.fullName,
         discipline: details.discipline,
+        shift: details.shift,
         classGroup: details.classGroup,
         roomId: room.id,
         roomName: room.name,
@@ -1279,12 +1402,13 @@ export async function performAction(
     } else {
       const supabase = getSupabaseAdmin();
       if (!supabase) rowError("Supabase não configurado.");
-      const { data, error } = await supabase
+      let insertSchedule = await supabase
         .from("schedules")
         .insert({
           teacher_id: teacher.id,
           teacher_name: teacher.fullName,
           discipline: details.discipline,
+          shift: details.shift,
           class_group: details.classGroup,
           room_id: room.id,
           room_name: room.name,
@@ -1295,8 +1419,26 @@ export async function performAction(
         })
         .select("id")
         .single();
-      if (error) rowError(error.message);
-      scheduleId = String((data as Record<string, unknown>).id);
+      if (insertSchedule.error && isMissingColumnError(insertSchedule.error)) {
+        insertSchedule = await supabase
+          .from("schedules")
+          .insert({
+            teacher_id: teacher.id,
+            teacher_name: teacher.fullName,
+            discipline: details.discipline,
+            class_group: details.classGroup,
+            room_id: room.id,
+            room_name: room.name,
+            weekday: details.weekday,
+            period_label: details.periodLabel,
+            start_time: details.startTime,
+            end_time: details.endTime,
+          })
+          .select("id")
+          .single();
+      }
+      if (insertSchedule.error) rowError(insertSchedule.error.message);
+      scheduleId = String((insertSchedule.data as Record<string, unknown>).id);
     }
     await addTeacherNotification(
       teacher.id,
@@ -1327,10 +1469,10 @@ export async function performAction(
       payload,
       teacher.discipline,
     );
-    if (teacher.discipline !== details.discipline) {
+    if (!teacherCanTeach(teacher, details.discipline)) {
       rowError(`Selecione um professor aprovado para ${details.discipline}.`);
     }
-    const { classGroup, periodLabel, discipline, startTime, endTime, weekday } = details;
+    const { classGroup, periodLabel, discipline, shift, startTime, endTime, weekday } = details;
     const conflicts = await findScheduleSlotConflicts(details, scheduleId);
 
     if (!isSupabaseConfigured()) {
@@ -1338,6 +1480,7 @@ export async function performAction(
       target.teacherId = teacher.id;
       target.teacherName = teacher.fullName;
       target.discipline = discipline;
+      target.shift = shift;
       target.classGroup = classGroup;
       target.roomId = room.id;
       target.roomName = room.name;
@@ -1354,6 +1497,7 @@ export async function performAction(
           teacher_id: teacher.id,
           teacher_name: teacher.fullName,
           discipline,
+          shift,
           class_group: classGroup,
           room_id: room.id,
           room_name: room.name,
@@ -1363,7 +1507,26 @@ export async function performAction(
           end_time: endTime,
         })
         .eq("id", scheduleId);
-      if (error) rowError(error.message);
+      if (error && isMissingColumnError(error)) {
+        const fallback = await supabase
+          .from("schedules")
+          .update({
+            teacher_id: teacher.id,
+            teacher_name: teacher.fullName,
+            discipline,
+            class_group: classGroup,
+            room_id: room.id,
+            room_name: room.name,
+            weekday,
+            period_label: periodLabel,
+            start_time: startTime,
+            end_time: endTime,
+          })
+          .eq("id", scheduleId);
+        if (fallback.error) rowError(fallback.error.message);
+      } else if (error) {
+        rowError(error.message);
+      }
     }
     await deleteScheduleRecords(conflicts.map((schedule) => schedule.id));
 

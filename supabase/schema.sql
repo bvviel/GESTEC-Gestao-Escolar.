@@ -6,6 +6,7 @@ create table if not exists public.teacher_requests (
   id uuid primary key default gen_random_uuid(),
   full_name text not null,
   discipline text not null,
+  disciplines text[] not null default '{}',
   email extensions.citext not null,
   password_hash text not null,
   contract_type text not null default 'temporary' check (contract_type in ('permanent', 'temporary')),
@@ -20,6 +21,7 @@ create table if not exists public.teachers (
   request_id uuid references public.teacher_requests(id) on delete set null,
   full_name text not null,
   discipline text not null,
+  disciplines text[] not null default '{}',
   email extensions.citext not null unique,
   password_hash text not null,
   contract_type text not null default 'permanent' check (contract_type in ('permanent', 'temporary')),
@@ -71,6 +73,7 @@ create table if not exists public.schedules (
   teacher_id uuid not null references public.teachers(id) on delete cascade,
   teacher_name text not null,
   discipline text not null,
+  shift text not null default 'morning' check (shift in ('morning', 'afternoon', 'night')),
   class_group text not null,
   room_id uuid references public.rooms(id) on delete set null,
   room_name text not null,
@@ -142,11 +145,48 @@ begin
   end if;
 end $$;
 
+alter table public.teacher_requests
+  add column if not exists disciplines text[] not null default '{}';
+alter table public.teachers
+  add column if not exists disciplines text[] not null default '{}';
+alter table public.schedules
+  add column if not exists shift text not null default 'morning';
+
+update public.teacher_requests
+set disciplines = array[discipline]
+where cardinality(disciplines) = 0 and discipline is not null;
+
+update public.teachers
+set disciplines = array[discipline]
+where cardinality(disciplines) = 0 and discipline is not null;
+
+update public.schedules
+set shift = case
+  when start_time >= time '18:30' then 'night'
+  when start_time >= time '13:00' then 'afternoon'
+  else 'morning'
+end
+where shift is null or shift = '';
+
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
+    where conname = 'schedules_shift_check'
+  ) then
+    alter table public.schedules
+      add constraint schedules_shift_check
+      check (shift in ('morning', 'afternoon', 'night'));
+  end if;
+end $$;
+
 create index if not exists teacher_requests_status_created_idx
   on public.teacher_requests (status, created_at desc);
 create index if not exists teachers_email_idx on public.teachers (email);
 create index if not exists substitutions_date_idx on public.substitutions (date, created_at desc);
 create index if not exists schedules_teacher_weekday_idx on public.schedules (teacher_id, weekday, start_time);
+create index if not exists schedules_shift_weekday_idx on public.schedules (shift, weekday, start_time);
 create index if not exists reservations_teacher_date_idx on public.reservations (teacher_id, date);
 create index if not exists notifications_role_created_idx on public.notifications (target_role, created_at desc);
 create index if not exists push_subscriptions_teacher_id_idx on public.push_subscriptions (teacher_id);
