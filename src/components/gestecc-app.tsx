@@ -987,7 +987,7 @@ export function GesteccApp() {
   return (
     <main className="min-h-screen bg-[#fbf7f4] text-zinc-950 transition dark:bg-[#08040d] dark:text-white">
       <header className="sticky top-0 z-30 border-b border-zinc-200 bg-white/90 backdrop-blur dark:border-white/10 dark:bg-[#08040d]/90">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3 py-3 sm:gap-4 sm:px-6">
           <div className="flex items-center gap-3">
             <Logo compact />
             <div className="hidden sm:block">
@@ -1062,7 +1062,7 @@ export function GesteccApp() {
                 )}
               </button>
               {notificationsOpen && (
-                <div className="absolute right-0 mt-2 w-80 overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-2xl shadow-orange-950/10 dark:border-white/10 dark:bg-[#16091f] dark:shadow-black/40">
+                <div className="absolute right-0 mt-2 w-[calc(100vw-1.5rem)] max-w-sm overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-2xl shadow-orange-950/10 dark:border-white/10 dark:bg-[#16091f] dark:shadow-black/40">
                   <div className="flex items-center justify-between gap-3 border-b border-zinc-100 px-4 py-3 dark:border-white/10">
                     <div>
                       <div className="font-black">Notificações</div>
@@ -1245,7 +1245,7 @@ export function GesteccApp() {
         </div>
       </header>
 
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+      <div className="mx-auto max-w-7xl px-3 py-4 sm:px-6 sm:py-6">
         {message && (
           <div className="mb-5 flex items-start justify-between gap-4 rounded-xl border border-orange-200 bg-orange-50 p-4 text-sm font-semibold text-orange-800 dark:border-orange-900/70 dark:bg-orange-950/30 dark:text-orange-200">
             <span>{message}</span>
@@ -1268,7 +1268,7 @@ export function GesteccApp() {
         {page === "manager" && session.role === "manager" && (
           <section className="grid gap-6">
             <div>
-              <h1 className="text-3xl font-black">Painel da Gestão</h1>
+              <h1 className="text-2xl font-black sm:text-3xl">Painel da Gestão</h1>
             </div>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <StatCard icon={<Users size={17} />} label="Professores ativos" value={metrics.activeTeachers} tone="bg-orange-50 text-orange-600 dark:bg-orange-500/10" />
@@ -1277,7 +1277,7 @@ export function GesteccApp() {
               <StatCard icon={<ClipboardList size={17} />} label="Reservas pendentes" value={metrics.pendingReservations} tone="bg-rose-50 text-rose-600 dark:bg-rose-500/10" />
             </div>
 
-            <div className="flex flex-wrap gap-2 rounded-2xl bg-white p-2 shadow-sm dark:bg-white/[0.04]">
+            <div className="-mx-3 flex gap-2 overflow-x-auto px-3 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:rounded-2xl sm:bg-white sm:p-2 sm:shadow-sm sm:dark:bg-white/[0.04]">
               {[
                 ["people", "Pessoas", Users],
                 ["permanent", "Concursados", CheckCircle2],
@@ -1292,7 +1292,7 @@ export function GesteccApp() {
                   type="button"
                   onClick={() => setManagerTab(key as ManagerTab)}
                   className={cx(
-                    "inline-flex h-9 transform-gpu items-center gap-2 rounded-lg px-3 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98]",
+                    "inline-flex h-9 shrink-0 transform-gpu items-center gap-2 rounded-lg px-3 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98]",
                     managerTab === key
                       ? "bg-zinc-950 text-white dark:bg-[#f15a3f]"
                       : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-white/10",
@@ -1365,9 +1365,9 @@ export function GesteccApp() {
         {page === "teacher" && session.role === "teacher" && (
           <section className="grid gap-6">
             <div>
-              <h1 className="text-3xl font-black">Olá, {session.name.split(" ")[0]}</h1>
+              <h1 className="text-2xl font-black sm:text-3xl">Olá, {session.name.split(" ")[0]}</h1>
             </div>
-            <div className="flex flex-wrap gap-2 rounded-xl bg-zinc-100 p-2 dark:bg-white/5">
+            <div className="-mx-3 flex gap-2 overflow-x-auto px-3 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:rounded-xl sm:bg-zinc-100 sm:p-2 sm:dark:bg-white/5">
               {[
                 ["overview", "Visão Geral", BookOpen],
                 ["schedules", "Horários", Calendar],
@@ -1379,7 +1379,7 @@ export function GesteccApp() {
                   type="button"
                   onClick={() => setTeacherTab(key as TeacherTab)}
                   className={cx(
-                    "inline-flex h-10 transform-gpu items-center gap-2 rounded-lg px-4 text-sm font-bold transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98]",
+                    "inline-flex h-10 shrink-0 transform-gpu items-center gap-2 rounded-lg px-4 text-sm font-bold transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98]",
                     teacherTab === key
                       ? "bg-white text-zinc-950 shadow-sm dark:bg-[#2b1745] dark:text-white"
                       : "text-zinc-600 hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-white",
@@ -1463,9 +1463,9 @@ function GeneralDashboard({
 
   return (
     <section className="grid gap-6">
-      <div className="flex items-end justify-between gap-4">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-3xl font-black">Painel Geral</h1>
+          <h1 className="text-2xl font-black sm:text-3xl">Painel Geral</h1>
         </div>
         <div className="text-xs text-zinc-400">Atualizado às {new Date(data.now).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</div>
       </div>
@@ -1571,11 +1571,11 @@ function ResponsiveTable({
           >
             <div className="grid gap-3">
               {row.map((cell, cellIndex) => (
-                <div key={`${cell}-${cellIndex}`} className="grid grid-cols-[0.8fr_1.2fr] gap-3 text-sm">
+                <div key={`${cell}-${cellIndex}`} className="grid grid-cols-[0.78fr_1.22fr] gap-3 text-sm">
                   <dt className="text-xs font-black uppercase tracking-wide text-zinc-400">
                     {headers[cellIndex]}
                   </dt>
-                  <dd className="min-w-0 text-right font-semibold text-zinc-700 dark:text-zinc-200">
+                  <dd className="min-w-0 break-words text-right font-semibold text-zinc-700 dark:text-zinc-200">
                     {cell || "—"}
                   </dd>
                 </div>
@@ -1599,7 +1599,7 @@ function ResponsiveTable({
             {rows.map((row, index) => (
               <tr key={`${row.join("-")}-${index}`} className="text-zinc-700 dark:text-zinc-200">
                 {row.map((cell, cellIndex) => (
-                  <td key={`${cell}-${cellIndex}`} className="border-b border-zinc-100 px-3 py-3 dark:border-white/10">
+                  <td key={`${cell}-${cellIndex}`} className="border-b border-zinc-100 px-3 py-3 align-top dark:border-white/10">
                     {cell || "—"}
                   </td>
                 ))}
@@ -1896,8 +1896,9 @@ function ManagerReservations({
                       {reservation.reason || "Sem motivo informado"}
                     </p>
                   </div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="grid gap-2 sm:flex sm:flex-wrap">
                     <Button
+                      className="w-full sm:w-auto"
                       disabled={loading}
                       onClick={() => void postAction("approveReservation", { reservationId: reservation.id })}
                     >
@@ -1905,6 +1906,7 @@ function ManagerReservations({
                     </Button>
                     <Button
                       variant="secondary"
+                      className="w-full sm:w-auto"
                       disabled={loading}
                       onClick={() => void postAction("rejectReservation", { reservationId: reservation.id })}
                     >
@@ -1919,19 +1921,59 @@ function ManagerReservations({
       </div>
 
       <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.04]">
-        <h2 className="mb-4 font-black">Histórico de reservas</h2>
-        <ResponsiveTable
-          headers={["Professor", "Sala", "Data", "Horário", "Motivo", "Status"]}
-          rows={reservations.map((reservation) => [
-            reservation.teacherName,
-            reservation.roomName,
-            dateLabel(reservation.date),
-            `${reservation.startTime}-${reservation.endTime}`,
-            reservation.reason ?? "—",
-            reservationStatusLabel(reservation.status),
-          ])}
-          empty={<EmptyState icon={<ClipboardList size={26} />} title="Nenhuma reserva criada" />}
-        />
+        <div className="mb-4 flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
+          <div>
+            <h2 className="font-black">Histórico de reservas</h2>
+            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+              Registros aprovados, recusados e pendentes que a gestão pode remover quando não forem mais necessários.
+            </p>
+          </div>
+          <span className="w-fit rounded-full bg-zinc-100 px-3 py-1 text-xs font-black text-zinc-500 dark:bg-white/10 dark:text-zinc-300">
+            {reservations.length} registro(s)
+          </span>
+        </div>
+        {reservations.length === 0 ? (
+          <EmptyState icon={<ClipboardList size={26} />} title="Nenhuma reserva criada" />
+        ) : (
+          <div className="grid gap-3">
+            {reservations.map((reservation) => (
+              <article
+                key={reservation.id}
+                className="grid gap-4 rounded-2xl border border-zinc-200 bg-zinc-50 p-4 transition-all duration-300 hover:-translate-y-0.5 hover:bg-white hover:shadow-md dark:border-white/10 dark:bg-white/[0.03] dark:hover:bg-white/[0.06] sm:grid-cols-[1fr_auto]"
+              >
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="break-words font-black">{reservation.roomName}</h3>
+                    <span className={cx("rounded-full px-2 py-1 text-[11px] font-black", reservationStatusClass(reservation.status))}>
+                      {reservationStatusLabel(reservation.status)}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-sm font-semibold text-zinc-600 dark:text-zinc-300">
+                    {reservation.teacherName}
+                  </p>
+                  <p className="mt-1 text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+                    {dateLabel(reservation.date)} · {reservation.startTime}-{reservation.endTime}
+                  </p>
+                  <p className="mt-2 break-words text-sm text-zinc-500 dark:text-zinc-400">
+                    {reservation.reason || "Sem motivo informado"}
+                  </p>
+                </div>
+                <Button
+                  variant="danger"
+                  className="w-full self-start sm:w-auto"
+                  disabled={loading}
+                  onClick={() => {
+                    if (window.confirm("Tem certeza que deseja remover esta reserva do histórico?")) {
+                      void postAction("deleteReservation", { reservationId: reservation.id });
+                    }
+                  }}
+                >
+                  <Trash2 size={15} /> Remover
+                </Button>
+              </article>
+            ))}
+          </div>
+        )}
       </section>
     </section>
   );
@@ -1970,12 +2012,12 @@ function RoomsManager({
           </p>
         </div>
 
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-3 lg:grid-cols-2 2xl:grid-cols-3">
           {sortedRooms.map((room) => (
             <form
               key={room.id}
               className={cx(
-                "grid gap-3 rounded-2xl border p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md",
+                "grid min-w-0 gap-3 overflow-hidden rounded-2xl border p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md",
                 room.isAvailable
                   ? "border-orange-100 bg-orange-50/60 dark:border-orange-400/20 dark:bg-orange-400/10"
                   : "border-rose-100 bg-rose-50/70 dark:border-rose-400/20 dark:bg-rose-400/10",
@@ -1992,16 +2034,16 @@ function RoomsManager({
                 if (ok) form.reset();
               }}
             >
-              <div className="flex items-start justify-between gap-3">
+              <div className="grid min-w-0 gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
                 <div className="min-w-0">
-                  <h3 className="truncate text-base font-black">{roomLabel(room)}</h3>
+                  <h3 className="break-words text-base font-black leading-snug">{roomLabel(room)}</h3>
                   <p className="mt-1 text-xs font-semibold text-zinc-500 dark:text-zinc-400">
                     Status atual: {roomStatusText(room.status)}
                   </p>
                 </div>
                 <span
                   className={cx(
-                    "shrink-0 rounded-full px-2.5 py-1 text-[11px] font-black",
+                    "w-fit max-w-full shrink-0 rounded-full px-2.5 py-1 text-[11px] font-black leading-none",
                     room.isAvailable
                       ? "bg-orange-100 text-[#24103d] dark:bg-orange-400/15 dark:text-orange-100"
                       : "bg-rose-100 text-rose-700 dark:bg-rose-400/15 dark:text-rose-100",
@@ -2018,11 +2060,11 @@ function RoomsManager({
                 placeholder="Ex: manutenção, interditada, sem uso"
               />
 
-              <div className="flex flex-wrap gap-2">
-                <Button type="submit" name="isAvailable" value="true" disabled={loading || room.isAvailable}>
+              <div className="grid gap-2 sm:flex sm:flex-wrap">
+                <Button className="w-full sm:w-auto" type="submit" name="isAvailable" value="true" disabled={loading || room.isAvailable}>
                   <CheckCircle2 size={15} /> Liberar
                 </Button>
-                <Button type="submit" name="isAvailable" value="false" variant="danger" disabled={loading || !room.isAvailable}>
+                <Button className="w-full sm:w-auto" type="submit" name="isAvailable" value="false" variant="danger" disabled={loading || !room.isAvailable}>
                   <X size={15} /> Indisponibilizar
                 </Button>
               </div>
@@ -2068,6 +2110,11 @@ function SchedulesManager({
   const visibleDaySchedules = activeScheduleFilter
     ? daySchedules.filter((schedule) => schedule.discipline === activeScheduleFilter)
     : daySchedules;
+  const mobileDaySchedules = [...visibleDaySchedules].sort((a, b) =>
+    a.startTime.localeCompare(b.startTime) ||
+    normalizeClassGroup(a.classGroup).localeCompare(normalizeClassGroup(b.classGroup), "pt-BR", { numeric: true }) ||
+    a.discipline.localeCompare(b.discipline, "pt-BR"),
+  );
   const allClassGroups = useMemo(
     () =>
       classGroupsForShift(scheduleShift)
@@ -2263,10 +2310,11 @@ function SchedulesManager({
               Nenhum professor aprovado para esta disciplina.
             </p>
           )}
-          <div className="flex items-end gap-2 md:col-span-2">
-            <Button type="submit" disabled={loading}>{editingSchedule ? "Salvar alterações" : "Salvar horário"}</Button>
+          <div className="grid items-end gap-2 md:col-span-2 sm:flex">
+            <Button className="w-full sm:w-auto" type="submit" disabled={loading}>{editingSchedule ? "Salvar alterações" : "Salvar horário"}</Button>
             <Button
               variant="secondary"
+              className="w-full sm:w-auto"
               onClick={closeForm}
             >
               Cancelar
@@ -2330,7 +2378,54 @@ function SchedulesManager({
       ) : activeScheduleFilter && visibleDaySchedules.length === 0 ? (
         <EmptyState icon={<Calendar size={26} />} title="Nenhuma aula encontrada para esse filtro" />
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-zinc-200 dark:border-white/10">
+        <>
+        <div className="grid gap-3 md:hidden">
+          {mobileDaySchedules.map((schedule) => (
+            <article
+              key={schedule.id}
+              className={cx(
+                "rounded-2xl border p-4 shadow-sm transition-all duration-300 active:scale-[0.99]",
+                activeScheduleFilter
+                  ? "border-orange-300 bg-orange-100 ring-1 ring-orange-200 dark:border-orange-300/40 dark:bg-orange-400/15"
+                  : "border-orange-100 bg-orange-50/70 dark:border-orange-400/20 dark:bg-orange-400/10",
+              )}
+            >
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-black text-[#24103d] dark:bg-white/10 dark:text-orange-100">
+                  {schedule.periodLabel} · {schedule.startTime}-{schedule.endTime}
+                </span>
+                <span className="rounded-full bg-white/70 px-2.5 py-1 text-[11px] font-black text-zinc-500 dark:bg-white/10 dark:text-zinc-300">
+                  {schedule.classGroup}
+                </span>
+              </div>
+              <h3 className="mt-3 break-words text-base font-black text-zinc-900 dark:text-white">{schedule.discipline}</h3>
+              <p className="mt-1 text-sm font-semibold text-zinc-600 dark:text-zinc-300">{schedule.teacherName}</p>
+              <p className="mt-1 break-words text-xs font-bold text-zinc-500 dark:text-zinc-400">{schedule.roomName}</p>
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  className="inline-flex h-9 items-center justify-center gap-1 rounded-lg bg-white px-2 text-xs font-black text-[#24103d] shadow-sm transition active:scale-95 dark:bg-white/10 dark:text-orange-100"
+                  onClick={() => openEditSchedule(schedule)}
+                >
+                  <Pencil size={13} /> Editar
+                </button>
+                <button
+                  type="button"
+                  className="inline-flex h-9 items-center justify-center gap-1 rounded-lg bg-white px-2 text-xs font-black text-rose-600 shadow-sm transition active:scale-95 dark:bg-white/10 dark:text-rose-200"
+                  onClick={() => {
+                    if (window.confirm("Tem certeza que deseja apagar esta aula?")) {
+                      void postAction("deleteSchedule", { scheduleId: schedule.id });
+                    }
+                  }}
+                >
+                  <Trash2 size={13} /> Apagar
+                </button>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <div className="hidden overflow-x-auto rounded-2xl border border-zinc-200 dark:border-white/10 md:block">
           <table className="w-full min-w-[920px] border-separate border-spacing-0 text-left text-sm">
             <thead>
               <tr className="bg-zinc-50 text-xs uppercase tracking-wide text-zinc-400 dark:bg-white/[0.03]">
@@ -2408,6 +2503,7 @@ function SchedulesManager({
             </tbody>
           </table>
         </div>
+        </>
       )}
     </section>
   );
@@ -2667,7 +2763,25 @@ function TeacherSchedules({ schedules }: { schedules: AppSnapshot["schedules"] }
                     {shiftLabel(shiftForDiscipline)}
                   </span>
                 </div>
-                <div className="overflow-x-auto">
+                <div className="grid gap-3 md:hidden">
+                  {[...disciplineSchedules]
+                    .sort((a, b) => a.weekday - b.weekday || a.startTime.localeCompare(b.startTime))
+                    .map((item) => (
+                      <article key={item.id} className="rounded-2xl border border-zinc-100 bg-zinc-50 p-4 dark:border-white/10 dark:bg-white/[0.03]">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-black text-[#24103d] dark:bg-white/10 dark:text-orange-100">
+                            {workWeek.find((day) => day.value === item.weekday)?.label ?? "Dia"}
+                          </span>
+                          <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-black text-zinc-500 dark:bg-white/10 dark:text-zinc-300">
+                            {item.periodLabel} · {item.startTime}-{item.endTime}
+                          </span>
+                        </div>
+                        <h4 className="mt-3 break-words font-black">{item.classGroup}</h4>
+                        <p className="mt-1 break-words text-sm font-semibold text-zinc-500 dark:text-zinc-400">{item.roomName}</p>
+                      </article>
+                    ))}
+                </div>
+                <div className="hidden overflow-x-auto md:block">
                   <table className="w-full min-w-[760px] border-separate border-spacing-2 text-sm">
                     <thead>
                       <tr>
@@ -2731,9 +2845,9 @@ function TeacherReservations({
 }) {
   return (
     <section className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.04]">
-      <div className="mb-4 flex items-center justify-between gap-4">
+      <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
         <h2 className="font-black">Minhas Reservas</h2>
-        <Button onClick={() => setReservationOpen(!reservationOpen)}>
+        <Button className="w-full sm:w-auto" onClick={() => setReservationOpen(!reservationOpen)}>
           <Plus size={15} /> Solicitar Reserva
         </Button>
       </div>
@@ -2765,9 +2879,9 @@ function TeacherReservations({
           <TextInput label="Início" name="startTime" type="time" required />
           <TextInput label="Término" name="endTime" type="time" required />
           <TextInput label="Motivo" name="reason" placeholder="Ex: aula prática" className="md:col-span-2" />
-          <div className="flex gap-2 md:col-span-2">
-            <Button type="submit" disabled={loading}>Enviar Solicitação</Button>
-            <Button variant="secondary" onClick={() => setReservationOpen(false)}>Cancelar</Button>
+          <div className="grid gap-2 md:col-span-2 sm:flex">
+            <Button className="w-full sm:w-auto" type="submit" disabled={loading}>Enviar Solicitação</Button>
+            <Button className="w-full sm:w-auto" variant="secondary" onClick={() => setReservationOpen(false)}>Cancelar</Button>
           </div>
         </form>
       )}

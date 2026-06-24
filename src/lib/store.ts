@@ -2001,6 +2001,62 @@ export async function performAction(
     return getSnapshot(claims);
   }
 
+  if (action === "deleteReservation") {
+    requireManager(claims);
+    const reservationId = String(payload.reservationId ?? "");
+    const reservation = await lookupReservation(reservationId);
+    const reservationPeriod = `${reservation.startTime}-${reservation.endTime}`;
+
+    if (!isSupabaseConfigured()) {
+      const state = memory();
+      state.reservations = state.reservations.filter((item) => item.id !== reservationId);
+      state.notifications = state.notifications.filter((item) => item.payload?.reservationId !== reservationId);
+      if (reservation.roomId) {
+        const room = state.rooms.find((item) => item.id === reservation.roomId);
+        if (room?.currentTeacherId === reservation.teacherId && room.currentPeriod === reservationPeriod) {
+          room.status = "free";
+          room.currentTeacherId = null;
+          room.currentTeacherName = null;
+          room.currentClass = null;
+          room.currentPeriod = null;
+          room.updatedAt = nowIso();
+        }
+      }
+    } else {
+      const supabase = getSupabaseAdmin();
+      if (!supabase) rowError("Supabase não configurado.");
+
+      if (reservation.roomId) {
+        const { error: roomError } = await supabase
+          .from("rooms")
+          .update({
+            status: "free",
+            current_teacher_id: null,
+            current_teacher_name: null,
+            current_class: null,
+            current_period: null,
+            updated_at: nowIso(),
+          })
+          .eq("id", reservation.roomId)
+          .eq("current_teacher_id", reservation.teacherId)
+          .eq("current_period", reservationPeriod);
+        if (roomError) rowError(roomError.message);
+      }
+
+      const { error: notificationError } = await supabase
+        .from("notifications")
+        .delete()
+        .eq("kind", "reservation_pending")
+        .contains("payload", { reservationId });
+      if (notificationError) rowError(notificationError.message);
+
+      const { error } = await supabase.from("reservations").delete().eq("id", reservationId);
+      if (error) rowError(error.message);
+    }
+
+    return getSnapshot(claims);
+  }
+
   if (action === "updateAvatar") {
     if (claims.role !== "teacher" || !claims.teacherId) rowError("Apenas professores podem alterar foto.");
     const avatarUrl = String(payload.avatarUrl ?? "");
