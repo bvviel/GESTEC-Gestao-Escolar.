@@ -169,8 +169,24 @@ function canonicalClassGroupForShift(value: string, shift: Shift) {
   return CLASS_GROUPS_BY_SHIFT[shift].find((classGroup) => classGroupKey(classGroup) === key) ?? "";
 }
 
+function normalizeRoomKind(kind: string) {
+  const value = kind.trim();
+  const key = value.toLocaleLowerCase("pt-BR");
+  if (!value || key === "sala") return "Sala";
+  if (key.includes("sem uso") || key.includes("interditado")) return "Sala de aula";
+  if (key.includes("computadores")) return "Laboratório de informática";
+  return value;
+}
+
+function normalizeRoomName(value: string) {
+  return value
+    .replace(/\s[-·]\s(?:Sem uso|Interditado)\b/gi, "")
+    .replace(/Laborat[oó]rio \(computadores\)/gi, "Laboratório de informática");
+}
+
 function roomDisplayName(room: Pick<Room, "name" | "kind">) {
-  return room.kind && room.kind !== "Sala" ? `${room.name} - ${room.kind}` : room.name;
+  const kind = normalizeRoomKind(room.kind);
+  return kind && kind !== "Sala" ? `${room.name} - ${kind}` : room.name;
 }
 
 function roomUnavailableMessage(room: Pick<Room, "name" | "kind" | "availabilityNote">) {
@@ -263,7 +279,7 @@ function mapRoom(row: Record<string, unknown>): Room {
     id: String(row.id),
     name: String(row.name),
     floor: String(row.floor),
-    kind: String(row.kind),
+    kind: normalizeRoomKind(String(row.kind ?? "Sala")),
     status: String(row.status) as Room["status"],
     isAvailable: row.is_available !== false,
     availabilityNote: row.availability_note ? String(row.availability_note) : null,
@@ -286,7 +302,7 @@ function mapSubstitution(row: Record<string, unknown>): Substitution {
     discipline: String(row.discipline),
     classGroup: String(row.class_group),
     roomId: row.room_id ? String(row.room_id) : null,
-    roomName: String(row.room_name),
+    roomName: normalizeRoomName(String(row.room_name)),
     createdAt: String(row.created_at),
   };
 }
@@ -301,7 +317,7 @@ function mapSchedule(row: Record<string, unknown>): Schedule {
     shift: normalizeShift(row.shift ?? shiftFromTime(startTime)),
     classGroup: String(row.class_group),
     roomId: row.room_id ? String(row.room_id) : null,
-    roomName: String(row.room_name),
+    roomName: normalizeRoomName(String(row.room_name)),
     weekday: Number(row.weekday),
     periodLabel: String(row.period_label),
     startTime,
@@ -315,7 +331,7 @@ function mapReservation(row: Record<string, unknown>): Reservation {
     teacherId: String(row.teacher_id),
     teacherName: String(row.teacher_name),
     roomId: row.room_id ? String(row.room_id) : null,
-    roomName: String(row.room_name),
+    roomName: normalizeRoomName(String(row.room_name)),
     date: String(row.date),
     startTime: String(row.start_time).slice(0, 5),
     endTime: String(row.end_time).slice(0, 5),

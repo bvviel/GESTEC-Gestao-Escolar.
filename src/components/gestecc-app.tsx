@@ -186,7 +186,7 @@ function ShiftButtons({
 }) {
   if (available.length <= 1) return null;
   return (
-    <div className="inline-flex w-fit flex-wrap gap-1 rounded-2xl bg-zinc-100 p-1 shadow-inner dark:bg-[#07120d]">
+    <div className="inline-flex w-fit flex-wrap gap-1 rounded-2xl bg-zinc-100 p-1 shadow-inner dark:bg-[#16091f]">
       {available.map((shift) => (
         <button
           key={shift}
@@ -195,7 +195,7 @@ function ShiftButtons({
           className={cx(
             "h-9 rounded-xl px-4 text-sm font-black transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.98]",
             selected === shift
-              ? "bg-[#36c486] text-white shadow-sm"
+              ? "bg-[#f15a3f] text-white shadow-sm"
               : "text-zinc-500 hover:bg-white hover:text-zinc-950 dark:text-zinc-400 dark:hover:bg-white/5 dark:hover:text-white",
           )}
         >
@@ -215,8 +215,18 @@ function normalizeClassGroup(value: string) {
     .trim();
 }
 
+function normalizeRoomKind(kind: string) {
+  const value = kind.trim();
+  const key = value.toLocaleLowerCase("pt-BR");
+  if (!value || key === "sala") return "Sala";
+  if (key.includes("sem uso") || key.includes("interditado")) return "Sala de aula";
+  if (key.includes("computadores")) return "Laboratório de informática";
+  return value;
+}
+
 function roomLabel(room: Pick<Room, "name" | "kind">) {
-  return room.kind && room.kind !== "Sala" ? `${room.name} · ${room.kind}` : room.name;
+  const kind = normalizeRoomKind(room.kind);
+  return kind && kind !== "Sala" ? `${room.name} · ${kind}` : room.name;
 }
 
 function roomCanBeUsed(room: Pick<Room, "status" | "isAvailable">) {
@@ -252,7 +262,7 @@ function Button({
 }) {
   const variants = {
     primary:
-      "bg-[#36c486] text-white shadow-sm shadow-emerald-600/20 hover:bg-[#20a76b] hover:shadow-lg hover:shadow-emerald-600/20",
+      "bg-[#f15a3f] text-white shadow-sm shadow-orange-600/20 hover:bg-[#dc3f2e] hover:shadow-lg hover:shadow-orange-600/20",
     secondary:
       "border border-zinc-200 bg-white text-zinc-800 shadow-sm hover:bg-zinc-50 hover:shadow-md dark:border-white/10 dark:bg-white/5 dark:text-zinc-100 dark:hover:bg-white/10",
     ghost:
@@ -265,7 +275,7 @@ function Button({
     <button
       type={type}
       className={cx(
-        "inline-flex h-10 transform-gpu items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition-all duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 dark:focus-visible:ring-emerald-950/40",
+        "inline-flex h-10 transform-gpu items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition-all duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-orange-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 dark:focus-visible:ring-orange-950/40",
         variants[variant],
         className,
       )}
@@ -285,7 +295,7 @@ function TextInput({
     <label className={cx("grid gap-2 text-sm font-semibold text-zinc-700 dark:text-zinc-200", className)}>
       {label}
       <input
-        className="h-12 rounded-xl border border-zinc-200 bg-white px-4 text-base text-zinc-950 outline-none transition-all duration-200 placeholder:text-zinc-400 hover:border-zinc-300 focus:border-[#36c486] focus:ring-4 focus:ring-emerald-100 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-zinc-500 dark:hover:border-white/20 dark:focus:ring-emerald-950/40"
+        className="h-12 rounded-xl border border-zinc-200 bg-white px-4 text-base text-zinc-950 outline-none transition-all duration-200 placeholder:text-zinc-400 hover:border-zinc-300 focus:border-[#f15a3f] focus:ring-4 focus:ring-orange-100 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-zinc-500 dark:hover:border-white/20 dark:focus:ring-orange-950/40"
         {...props}
       />
     </label>
@@ -302,7 +312,7 @@ function SelectInput({
     <label className={cx("grid gap-2 text-sm font-semibold text-zinc-700 dark:text-zinc-200", className)}>
       {label}
       <select
-        className="h-12 rounded-xl border border-zinc-200 bg-white px-4 text-base text-zinc-950 outline-none transition-all duration-200 hover:border-zinc-300 focus:border-[#36c486] focus:ring-4 focus:ring-emerald-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/10 dark:bg-[#07120d] dark:text-white dark:hover:border-white/20 dark:focus:ring-emerald-950/40"
+        className="h-12 rounded-xl border border-zinc-200 bg-white px-4 text-base text-zinc-950 outline-none transition-all duration-200 hover:border-zinc-300 focus:border-[#f15a3f] focus:ring-4 focus:ring-orange-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/10 dark:bg-[#16091f] dark:text-white dark:hover:border-white/20 dark:focus:ring-orange-950/40"
         {...props}
       >
         {children}
@@ -321,7 +331,7 @@ function PasswordInput({ label, name, placeholder }: { label: string; name: stri
           name={name}
           type={visible ? "text" : "password"}
           placeholder={placeholder}
-          className="h-12 w-full rounded-xl border border-zinc-200 bg-white px-4 pr-12 text-base text-zinc-950 outline-none transition-all duration-200 placeholder:text-zinc-400 hover:border-zinc-300 focus:border-[#36c486] focus:ring-4 focus:ring-emerald-100 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-zinc-500 dark:hover:border-white/20 dark:focus:ring-emerald-950/40"
+          className="h-12 w-full rounded-xl border border-zinc-200 bg-white px-4 pr-12 text-base text-zinc-950 outline-none transition-all duration-200 placeholder:text-zinc-400 hover:border-zinc-300 focus:border-[#f15a3f] focus:ring-4 focus:ring-orange-100 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-zinc-500 dark:hover:border-white/20 dark:focus:ring-orange-950/40"
         />
         <button
           type="button"
@@ -353,13 +363,13 @@ function ThemeToggle({ theme, setTheme }: { theme: "light" | "dark"; setTheme: (
 function Logo({ compact = false }: { compact?: boolean }) {
   return (
     <div className="flex items-center gap-3">
-      <div className="grid h-11 w-11 place-items-center rounded-xl bg-[#0f8a61] text-white shadow-sm shadow-violet-950/20">
+      <div className="grid h-11 w-11 place-items-center rounded-xl bg-[#24103d] text-white shadow-sm shadow-violet-950/20">
         <BookOpen size={22} />
       </div>
       {!compact && (
         <div className="leading-none">
-          <div className="text-xl font-black tracking-wide text-[#0f8a61] dark:text-white">GESTEC</div>
-          <div className="mt-1 text-[10px] font-bold uppercase tracking-[0.24em] text-[#36c486]">
+          <div className="text-xl font-black tracking-wide text-[#24103d] dark:text-white">GESTEC</div>
+          <div className="mt-1 text-[10px] font-bold uppercase tracking-[0.24em] text-[#f15a3f]">
             Programando Sempre
           </div>
         </div>
@@ -380,7 +390,7 @@ function StatCard({
   tone: string;
 }) {
   return (
-    <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-lg dark:border-white/10 dark:bg-white/[0.04] dark:hover:border-emerald-400/30">
+    <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-orange-200 hover:shadow-lg dark:border-white/10 dark:bg-white/[0.04] dark:hover:border-orange-400/30">
       <div className={cx("mb-4 grid h-8 w-8 place-items-center rounded-lg", tone)}>{icon}</div>
       <div className="text-2xl font-black text-zinc-950 dark:text-white">{value}</div>
       <div className="mt-1 text-xs font-medium text-zinc-500 dark:text-zinc-400">{label}</div>
@@ -709,8 +719,8 @@ export function GesteccApp() {
 
   if (!session) {
     return (
-      <main className="relative min-h-screen overflow-hidden bg-[#f4f7f5] text-zinc-950 transition dark:bg-[#020806] dark:text-white">
-        <header className="relative z-10 border-b border-zinc-200/80 bg-white/80 backdrop-blur-xl dark:border-white/10 dark:bg-[#020806]/85">
+      <main className="relative min-h-screen overflow-hidden bg-[#fbf6f3] text-zinc-950 transition dark:bg-[#08040d] dark:text-white">
+        <header className="relative z-10 border-b border-zinc-200/80 bg-white/80 backdrop-blur-xl dark:border-white/10 dark:bg-[#08040d]/85">
           <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-4">
             <Logo />
             <ThemeToggle theme={theme} setTheme={setTheme} />
@@ -718,10 +728,10 @@ export function GesteccApp() {
         </header>
         <section className="relative z-10 mx-auto grid min-h-[calc(100vh-132px)] max-w-6xl items-center gap-10 px-5 py-10 lg:grid-cols-[1fr_0.92fr]">
           <div className="max-w-2xl">
-            <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-black uppercase tracking-wide text-emerald-700 shadow-sm dark:border-emerald-400/20 dark:bg-emerald-400/10 dark:text-emerald-200">
+            <span className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-4 py-2 text-xs font-black uppercase tracking-wide text-orange-700 shadow-sm dark:border-orange-400/20 dark:bg-orange-400/10 dark:text-orange-200">
               <Sparkles size={15} /> Plataforma escolar integrada
             </span>
-            <h1 className="mt-6 text-4xl font-black leading-[1.04] text-[#062016] dark:text-white sm:text-6xl">
+            <h1 className="mt-6 text-4xl font-black leading-[1.04] text-[#24103d] dark:text-white sm:text-6xl">
               Bem-vindo ao GESTEC
             </h1>
             <p className="mt-5 max-w-xl text-lg leading-8 text-zinc-600 dark:text-zinc-300">
@@ -736,9 +746,9 @@ export function GesteccApp() {
               ].map(([label, Icon]) => (
                 <div
                   key={String(label)}
-                  className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white/75 p-3 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-lg dark:border-white/10 dark:bg-white/[0.04] dark:hover:border-emerald-400/30"
+                  className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white/75 p-3 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-orange-200 hover:shadow-lg dark:border-white/10 dark:bg-white/[0.04] dark:hover:border-orange-400/30"
                 >
-                  <span className="grid h-9 w-9 place-items-center rounded-lg bg-emerald-50 text-[#36c486] dark:bg-emerald-400/10">
+                  <span className="grid h-9 w-9 place-items-center rounded-lg bg-orange-50 text-[#f15a3f] dark:bg-orange-400/10">
                     <Icon size={18} />
                   </span>
                   <span className="text-sm font-bold text-zinc-700 dark:text-zinc-200">{String(label)}</span>
@@ -762,7 +772,7 @@ export function GesteccApp() {
               )}
 
               {authView === "select" && (
-                <div className="rounded-2xl border border-zinc-200 bg-white/95 p-5 shadow-xl shadow-emerald-950/5 transition-all duration-300 dark:border-white/10 dark:bg-[#07120d]/95 dark:shadow-black/30">
+                <div className="rounded-2xl border border-zinc-200 bg-white/95 p-5 shadow-xl shadow-orange-950/5 transition-all duration-300 dark:border-white/10 dark:bg-[#16091f]/95 dark:shadow-black/30">
                   <Button
                     type="button"
                     variant="secondary"
@@ -775,8 +785,8 @@ export function GesteccApp() {
                     <Info size={16} /> Quem somos nós?
                   </Button>
                   <div className="mb-5">
-                    <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-black uppercase tracking-wide text-[#36c486] dark:bg-emerald-500/10">
-                      <span className="h-2 w-2 rounded-full bg-[#36c486]" />
+                    <span className="inline-flex items-center gap-2 rounded-full bg-orange-50 px-3 py-1.5 text-xs font-black uppercase tracking-wide text-[#f15a3f] dark:bg-orange-500/10">
+                      <span className="h-2 w-2 rounded-full bg-[#f15a3f]" />
                       Fazer login
                     </span>
                     <h2 className="mt-4 text-3xl font-black leading-tight">Acesso ao sistema</h2>
@@ -788,10 +798,10 @@ export function GesteccApp() {
                     <button
                       type="button"
                       onClick={() => setAuthView("teacher")}
-                      className="group flex transform-gpu items-center justify-between rounded-xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#36c486] hover:shadow-lg active:translate-y-0 active:scale-[0.99] dark:border-white/10 dark:bg-white/[0.04]"
+                      className="group flex transform-gpu items-center justify-between rounded-xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#f15a3f] hover:shadow-lg active:translate-y-0 active:scale-[0.99] dark:border-white/10 dark:bg-white/[0.04]"
                     >
                       <span className="flex items-center gap-4">
-                        <span className="grid h-12 w-12 place-items-center rounded-xl bg-[#36c486] text-white shadow-lg shadow-emerald-600/20">
+                        <span className="grid h-12 w-12 place-items-center rounded-xl bg-[#f15a3f] text-white shadow-lg shadow-orange-600/20">
                           <GraduationCap size={24} />
                         </span>
                         <span>
@@ -801,15 +811,15 @@ export function GesteccApp() {
                           </span>
                         </span>
                       </span>
-                      <span className="text-zinc-300 transition group-hover:translate-x-1 group-hover:text-[#36c486]">›</span>
+                      <span className="text-zinc-300 transition group-hover:translate-x-1 group-hover:text-[#f15a3f]">›</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => setAuthView("manager")}
-                      className="group flex transform-gpu items-center justify-between rounded-xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#0f8a61] hover:shadow-lg active:translate-y-0 active:scale-[0.99] dark:border-white/10 dark:bg-white/[0.04]"
+                      className="group flex transform-gpu items-center justify-between rounded-xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#24103d] hover:shadow-lg active:translate-y-0 active:scale-[0.99] dark:border-white/10 dark:bg-white/[0.04]"
                     >
                       <span className="flex items-center gap-4">
-                        <span className="grid h-12 w-12 place-items-center rounded-xl bg-[#0f8a61] text-white shadow-lg shadow-emerald-600/20">
+                        <span className="grid h-12 w-12 place-items-center rounded-xl bg-[#24103d] text-white shadow-lg shadow-orange-600/20">
                           <Shield size={23} />
                         </span>
                         <span>
@@ -819,15 +829,15 @@ export function GesteccApp() {
                           </span>
                         </span>
                       </span>
-                      <span className="text-zinc-300 transition group-hover:translate-x-1 group-hover:text-[#0f8a61]">›</span>
+                      <span className="text-zinc-300 transition group-hover:translate-x-1 group-hover:text-[#24103d]">›</span>
                     </button>
                   </div>
                 </div>
               )}
 
               {authView === "about" && (
-                <section className="rounded-2xl border border-zinc-200 bg-white/95 p-6 shadow-xl shadow-emerald-950/5 dark:border-white/10 dark:bg-[#07120d]/95 dark:shadow-black/30">
-                  <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-black uppercase tracking-wide text-[#36c486] dark:bg-emerald-500/10">
+                <section className="rounded-2xl border border-zinc-200 bg-white/95 p-6 shadow-xl shadow-orange-950/5 dark:border-white/10 dark:bg-[#16091f]/95 dark:shadow-black/30">
+                  <span className="inline-flex items-center gap-2 rounded-full bg-orange-50 px-3 py-1.5 text-xs font-black uppercase tracking-wide text-[#f15a3f] dark:bg-orange-500/10">
                     <School size={14} /> Projeto GESTEC
                   </span>
                   <h2 className="mt-5 text-3xl font-black">Quem somos nós?</h2>
@@ -845,7 +855,7 @@ export function GesteccApp() {
 
               {authView === "teacher" && (
                 <form onSubmit={(event) => login(event, "teacher")} className="grid gap-5">
-                  <span className="inline-flex w-fit items-center gap-2 rounded-full bg-[#36c486] px-5 py-3 text-sm font-black text-white">
+                  <span className="inline-flex w-fit items-center gap-2 rounded-full bg-[#f15a3f] px-5 py-3 text-sm font-black text-white">
                     <GraduationCap size={19} /> Professor
                   </span>
                   <div>
@@ -867,14 +877,14 @@ export function GesteccApp() {
                       setMessage(null);
                     }}
                   >
-                    Não tem conta? <span className="text-[#36c486]">Cadastrar-se</span>
+                    Não tem conta? <span className="text-[#f15a3f]">Cadastrar-se</span>
                   </button>
                 </form>
               )}
 
               {authView === "manager" && (
                 <form onSubmit={(event) => login(event, "manager")} className="grid gap-5">
-                  <span className="inline-flex w-fit items-center gap-2 rounded-full bg-[#0f8a61] px-5 py-3 text-sm font-black text-white">
+                  <span className="inline-flex w-fit items-center gap-2 rounded-full bg-[#24103d] px-5 py-3 text-sm font-black text-white">
                     <Shield size={18} /> Gestor
                   </span>
                   <div>
@@ -893,7 +903,7 @@ export function GesteccApp() {
 
               {authView === "request" && (
                 <form onSubmit={requestAccess} className="grid gap-5">
-                  <span className="inline-flex w-fit items-center gap-2 rounded-full bg-[#36c486] px-5 py-3 text-sm font-black text-white">
+                  <span className="inline-flex w-fit items-center gap-2 rounded-full bg-[#f15a3f] px-5 py-3 text-sm font-black text-white">
                     <GraduationCap size={19} /> Novo Professor
                   </span>
                   <div>
@@ -919,7 +929,7 @@ export function GesteccApp() {
                       {DISCIPLINES.map((discipline) => (
                         <label
                           key={discipline}
-                          className="group flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm font-black text-zinc-800 transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-emerald-50 hover:shadow-sm dark:border-white/10 dark:bg-[#07120d] dark:text-zinc-100 dark:hover:border-emerald-400/30 dark:hover:bg-emerald-400/10"
+                          className="group flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm font-black text-zinc-800 transition-all duration-200 hover:-translate-y-0.5 hover:border-orange-200 hover:bg-orange-50 hover:shadow-sm dark:border-white/10 dark:bg-[#16091f] dark:text-zinc-100 dark:hover:border-orange-400/30 dark:hover:bg-orange-400/10"
                         >
                           <input
                             type="checkbox"
@@ -927,10 +937,10 @@ export function GesteccApp() {
                             value={discipline}
                             className="peer sr-only"
                           />
-                          <span className="grid h-5 w-5 shrink-0 place-items-center rounded-md border border-zinc-300 bg-white text-transparent transition-all duration-200 peer-checked:border-[#36c486] peer-checked:bg-[#36c486] peer-checked:text-white dark:border-white/20 dark:bg-white/5">
+                          <span className="grid h-5 w-5 shrink-0 place-items-center rounded-md border border-zinc-300 bg-white text-transparent transition-all duration-200 peer-checked:border-[#f15a3f] peer-checked:bg-[#f15a3f] peer-checked:text-white dark:border-white/20 dark:bg-white/5">
                             <Check size={14} strokeWidth={3} />
                           </span>
-                          <span className="leading-snug transition-colors peer-checked:text-[#0f8a61] dark:peer-checked:text-emerald-200">
+                          <span className="leading-snug transition-colors peer-checked:text-[#24103d] dark:peer-checked:text-orange-200">
                             {discipline}
                           </span>
                         </label>
@@ -955,19 +965,19 @@ export function GesteccApp() {
                     className="text-center text-sm font-semibold text-zinc-500 dark:text-zinc-400"
                     onClick={() => setAuthView("teacher")}
                   >
-                    Já tem conta? <span className="text-[#36c486]">Fazer login</span>
+                    Já tem conta? <span className="text-[#f15a3f]">Fazer login</span>
                   </button>
                 </form>
               )}
 
               {message && (
-                <div className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-800 dark:border-emerald-900/70 dark:bg-emerald-950/30 dark:text-emerald-200">
+                <div className="mt-6 rounded-xl border border-orange-200 bg-orange-50 p-4 text-sm font-medium text-orange-800 dark:border-orange-900/70 dark:bg-orange-950/30 dark:text-orange-200">
                   {message}
                 </div>
               )}
             </div>
         </section>
-        <footer className="relative z-10 border-t border-zinc-200/80 bg-white/70 py-4 text-center text-xs font-semibold text-zinc-500 backdrop-blur dark:border-white/10 dark:bg-[#020806]/80 dark:text-zinc-400">
+        <footer className="relative z-10 border-t border-zinc-200/80 bg-white/70 py-4 text-center text-xs font-semibold text-zinc-500 backdrop-blur dark:border-white/10 dark:bg-[#08040d]/80 dark:text-zinc-400">
           © 2026 GESTEC — Todos os direitos reservados.
         </footer>
       </main>
@@ -975,8 +985,8 @@ export function GesteccApp() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f5f6f8] text-zinc-950 transition dark:bg-[#020806] dark:text-white">
-      <header className="sticky top-0 z-30 border-b border-zinc-200 bg-white/90 backdrop-blur dark:border-white/10 dark:bg-[#020806]/90">
+    <main className="min-h-screen bg-[#fbf7f4] text-zinc-950 transition dark:bg-[#08040d] dark:text-white">
+      <header className="sticky top-0 z-30 border-b border-zinc-200 bg-white/90 backdrop-blur dark:border-white/10 dark:bg-[#08040d]/90">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3">
             <Logo compact />
@@ -993,7 +1003,7 @@ export function GesteccApp() {
               className={cx(
                 "inline-flex h-9 transform-gpu items-center gap-2 rounded-lg px-3 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98]",
                 page === "general"
-                  ? "bg-white text-zinc-950 shadow-sm dark:bg-[#123322] dark:text-white"
+                  ? "bg-white text-zinc-950 shadow-sm dark:bg-[#2b1745] dark:text-white"
                   : "text-zinc-600 hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-white",
               )}
             >
@@ -1007,7 +1017,7 @@ export function GesteccApp() {
                 className={cx(
                   "inline-flex h-9 transform-gpu items-center gap-2 rounded-lg px-3 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98]",
                   page === "manager"
-                    ? "bg-[#36c486] text-white shadow-sm"
+                    ? "bg-[#f15a3f] text-white shadow-sm"
                     : "text-zinc-600 hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-white",
                 )}
               >
@@ -1022,7 +1032,7 @@ export function GesteccApp() {
                 className={cx(
                   "inline-flex h-9 transform-gpu items-center gap-2 rounded-lg px-3 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98]",
                   page === "teacher"
-                    ? "bg-[#36c486] text-white shadow-sm"
+                    ? "bg-[#f15a3f] text-white shadow-sm"
                     : "text-zinc-600 hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-white",
                 )}
               >
@@ -1038,7 +1048,7 @@ export function GesteccApp() {
                 type="button"
                 className={cx(
                   "relative inline-flex h-10 w-10 transform-gpu items-center justify-center rounded-full text-zinc-600 transition-all duration-300 hover:-translate-y-0.5 hover:bg-zinc-100 active:scale-95 dark:text-zinc-300 dark:hover:bg-white/10",
-                  notificationsOpen && "bg-emerald-50 text-[#36c486] shadow-sm dark:bg-emerald-400/10",
+                  notificationsOpen && "bg-orange-50 text-[#f15a3f] shadow-sm dark:bg-orange-400/10",
                   unreadNotifications > 0 && !notificationsOpen && "animate-pulse",
                 )}
                 onClick={() => setNotificationsOpen((value) => !value)}
@@ -1046,13 +1056,13 @@ export function GesteccApp() {
               >
                 <Bell size={18} />
                 {unreadNotifications > 0 && (
-                  <span className="absolute right-1 top-1 grid h-5 min-w-5 place-items-center rounded-full bg-[#36c486] px-1 text-[10px] font-black text-white ring-2 ring-white dark:ring-[#020806]">
+                  <span className="absolute right-1 top-1 grid h-5 min-w-5 place-items-center rounded-full bg-[#f15a3f] px-1 text-[10px] font-black text-white ring-2 ring-white dark:ring-[#08040d]">
                     {unreadNotifications}
                   </span>
                 )}
               </button>
               {notificationsOpen && (
-                <div className="absolute right-0 mt-2 w-80 overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-2xl shadow-emerald-950/10 dark:border-white/10 dark:bg-[#07120d] dark:shadow-black/40">
+                <div className="absolute right-0 mt-2 w-80 overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-2xl shadow-orange-950/10 dark:border-white/10 dark:bg-[#16091f] dark:shadow-black/40">
                   <div className="flex items-center justify-between gap-3 border-b border-zinc-100 px-4 py-3 dark:border-white/10">
                     <div>
                       <div className="font-black">Notificações</div>
@@ -1061,7 +1071,7 @@ export function GesteccApp() {
                     {data.notifications.length > 0 && (
                       <button
                         type="button"
-                        className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1.5 text-[11px] font-black text-[#36c486] transition hover:-translate-y-0.5 hover:bg-emerald-100 dark:bg-emerald-400/10 dark:hover:bg-emerald-400/20"
+                        className="inline-flex items-center gap-1 rounded-full bg-orange-50 px-3 py-1.5 text-[11px] font-black text-[#f15a3f] transition hover:-translate-y-0.5 hover:bg-orange-100 dark:bg-orange-400/10 dark:hover:bg-orange-400/20"
                         onClick={() => void postAction("markNotificationsRead")}
                       >
                         <CheckCheck size={13} /> Ler todas
@@ -1086,7 +1096,7 @@ export function GesteccApp() {
                             "cursor-pointer rounded-lg border p-3 transition hover:bg-zinc-50 dark:hover:bg-white/5",
                             notification.readAt
                               ? "border-transparent opacity-75"
-                              : "border-emerald-100 bg-emerald-50/60 dark:border-emerald-900/40 dark:bg-emerald-950/20",
+                              : "border-orange-100 bg-orange-50/60 dark:border-orange-900/40 dark:bg-orange-950/20",
                           )}
                           onClick={() => {
                             if (!notification.readAt) {
@@ -1096,7 +1106,7 @@ export function GesteccApp() {
                         >
                           <div className="flex items-center justify-between gap-3">
                             <div className="text-sm font-black">{notification.title}</div>
-                            {!notification.readAt && <span className="h-2 w-2 rounded-full bg-[#36c486]" />}
+                            {!notification.readAt && <span className="h-2 w-2 rounded-full bg-[#f15a3f]" />}
                           </div>
                           <div className="mt-1 text-xs leading-5 text-zinc-500 dark:text-zinc-400">{notification.body}</div>
                           {signupRequest && (
@@ -1211,7 +1221,7 @@ export function GesteccApp() {
                           type="button"
                           disabled={!canEnablePush || loading}
                           onClick={() => void enablePushNotifications()}
-                          className="inline-flex h-8 shrink-0 transform-gpu items-center gap-1 rounded-full bg-[#36c486] px-3 text-[11px] font-black text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+                          className="inline-flex h-8 shrink-0 transform-gpu items-center gap-1 rounded-full bg-[#f15a3f] px-3 text-[11px] font-black text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
                         >
                           <Bell size={12} />
                           {pushState === "active" ? "Sincronizar" : "Ativar"}
@@ -1237,7 +1247,7 @@ export function GesteccApp() {
 
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
         {message && (
-          <div className="mb-5 flex items-start justify-between gap-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-semibold text-emerald-800 dark:border-emerald-900/70 dark:bg-emerald-950/30 dark:text-emerald-200">
+          <div className="mb-5 flex items-start justify-between gap-4 rounded-xl border border-orange-200 bg-orange-50 p-4 text-sm font-semibold text-orange-800 dark:border-orange-900/70 dark:bg-orange-950/30 dark:text-orange-200">
             <span>{message}</span>
             <button type="button" onClick={() => setMessage(null)} aria-label="Fechar mensagem">
               <X size={16} />
@@ -1246,7 +1256,7 @@ export function GesteccApp() {
         )}
 
         {snapshotLoaded && data.mode === "memory" && (
-          <div className="mb-5 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs font-semibold text-emerald-800 dark:border-emerald-900/70 dark:bg-emerald-950/30 dark:text-emerald-200">
+          <div className="mb-5 rounded-xl border border-orange-200 bg-orange-50 p-3 text-xs font-semibold text-orange-800 dark:border-orange-900/70 dark:bg-orange-950/30 dark:text-orange-200">
             Modo local: conecte as variáveis do Supabase para persistência online.
           </div>
         )}
@@ -1261,8 +1271,8 @@ export function GesteccApp() {
               <h1 className="text-3xl font-black">Painel da Gestão</h1>
             </div>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <StatCard icon={<Users size={17} />} label="Professores ativos" value={metrics.activeTeachers} tone="bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10" />
-              <StatCard icon={<CheckCircle2 size={17} />} label="Concursados" value={metrics.permanentTeachers} tone="bg-teal-50 text-teal-600 dark:bg-teal-500/10" />
+              <StatCard icon={<Users size={17} />} label="Professores ativos" value={metrics.activeTeachers} tone="bg-orange-50 text-orange-600 dark:bg-orange-500/10" />
+              <StatCard icon={<CheckCircle2 size={17} />} label="Concursados" value={metrics.permanentTeachers} tone="bg-violet-50 text-violet-600 dark:bg-violet-500/10" />
               <StatCard icon={<FileText size={17} />} label="Não concursados" value={metrics.temporaryTeachers} tone="bg-amber-50 text-amber-600 dark:bg-amber-500/10" />
               <StatCard icon={<ClipboardList size={17} />} label="Reservas pendentes" value={metrics.pendingReservations} tone="bg-rose-50 text-rose-600 dark:bg-rose-500/10" />
             </div>
@@ -1284,7 +1294,7 @@ export function GesteccApp() {
                   className={cx(
                     "inline-flex h-9 transform-gpu items-center gap-2 rounded-lg px-3 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98]",
                     managerTab === key
-                      ? "bg-zinc-950 text-white dark:bg-[#36c486]"
+                      ? "bg-zinc-950 text-white dark:bg-[#f15a3f]"
                       : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-white/10",
                   )}
                 >
@@ -1371,7 +1381,7 @@ export function GesteccApp() {
                   className={cx(
                     "inline-flex h-10 transform-gpu items-center gap-2 rounded-lg px-4 text-sm font-bold transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98]",
                     teacherTab === key
-                      ? "bg-white text-zinc-950 shadow-sm dark:bg-[#123322] dark:text-white"
+                      ? "bg-white text-zinc-950 shadow-sm dark:bg-[#2b1745] dark:text-white"
                       : "text-zinc-600 hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-white",
                   )}
                 >
@@ -1412,7 +1422,7 @@ export function GesteccApp() {
           </section>
         )}
       </div>
-      <footer className="border-t border-zinc-200/80 bg-white/70 py-4 text-center text-xs font-semibold text-zinc-500 backdrop-blur dark:border-white/10 dark:bg-[#020806]/80 dark:text-zinc-400">
+      <footer className="border-t border-zinc-200/80 bg-white/70 py-4 text-center text-xs font-semibold text-zinc-500 backdrop-blur dark:border-white/10 dark:bg-[#08040d]/80 dark:text-zinc-400">
         © 2026 GESTEC — Todos os direitos reservados.
       </footer>
     </main>
@@ -1460,10 +1470,10 @@ function GeneralDashboard({
         <div className="text-xs text-zinc-400">Atualizado às {new Date(data.now).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</div>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard icon={<Calendar size={17} />} label="Aulas hoje" value={metrics.todaysSchedules} tone="bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10" />
+        <StatCard icon={<Calendar size={17} />} label="Aulas hoje" value={metrics.todaysSchedules} tone="bg-orange-50 text-orange-600 dark:bg-orange-500/10" />
         <StatCard icon={<DoorOpen size={17} />} label={role === "teacher" ? "Salas para hoje" : "Salas com aula hoje"} value={new Set(todaySchedules.map((schedule) => schedule.roomName)).size} tone="bg-rose-50 text-rose-600 dark:bg-rose-500/10" />
         <StatCard icon={<ClipboardList size={17} />} label="Substituições hoje" value={metrics.substitutions} tone="bg-amber-50 text-amber-600 dark:bg-amber-500/10" />
-        <StatCard icon={<Bell size={17} />} label="Avisos ativos" value={metrics.notices} tone="bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10" />
+        <StatCard icon={<Bell size={17} />} label="Avisos ativos" value={metrics.notices} tone="bg-orange-50 text-orange-600 dark:bg-orange-500/10" />
       </div>
 
       <div className="grid gap-5 lg:grid-cols-[1fr_1fr]">
@@ -1471,20 +1481,20 @@ function GeneralDashboard({
           <div className="mb-4 flex items-center justify-between">
             <div>
               <h2 className="flex items-center gap-2 text-base font-black">
-                <Megaphone size={17} className="text-[#36c486]" /> Mural de Avisos Importantes
+                <Megaphone size={17} className="text-[#f15a3f]" /> Mural de Avisos Importantes
               </h2>
               <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Comunicados oficiais publicados pela gestão.</p>
             </div>
-            <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-[#36c486] dark:bg-emerald-500/10">
+            <span className="rounded-full bg-orange-50 px-3 py-1 text-xs font-bold text-[#f15a3f] dark:bg-orange-500/10">
               {data.notices.length} ativos
             </span>
           </div>
           <div className="grid max-h-[420px] gap-3 overflow-auto pr-1">
             {data.notices.map((notice) => (
-              <article key={notice.id} className="rounded-2xl border border-zinc-200 border-t-4 border-t-[#36c486] bg-zinc-50 p-4 transition-all duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-md dark:border-white/10 dark:border-t-[#36c486] dark:bg-white/[0.04] dark:hover:bg-white/[0.07]">
+              <article key={notice.id} className="rounded-2xl border border-zinc-200 border-t-4 border-t-[#f15a3f] bg-zinc-50 p-4 transition-all duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-md dark:border-white/10 dark:border-t-[#f15a3f] dark:bg-white/[0.04] dark:hover:bg-white/[0.07]">
                 <div className="flex items-start justify-between gap-3">
                   <h3 className="font-black">{notice.title}</h3>
-                  <span className="shrink-0 rounded-full bg-white px-2 py-1 text-[11px] font-bold text-[#36c486] dark:bg-white/10">
+                  <span className="shrink-0 rounded-full bg-white px-2 py-1 text-[11px] font-bold text-[#f15a3f] dark:bg-white/10">
                     {notice.category}
                   </span>
                 </div>
@@ -1515,7 +1525,7 @@ function GeneralDashboard({
 
       <section className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.04]">
         <div className="mb-4 flex items-center gap-2">
-          <span className="h-5 w-1 rounded-full bg-emerald-500" />
+          <span className="h-5 w-1 rounded-full bg-orange-500" />
           <h2 className="text-base font-black">{role === "teacher" ? "Salas que você precisa ir hoje" : "Aulas e salas de hoje"}</h2>
         </div>
         <ResponsiveTable
@@ -1619,8 +1629,8 @@ function ManagerPeople({
   return (
     <div className="grid gap-5">
       {pendingRequests.length > 0 && (
-        <section className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900/70 dark:bg-emerald-950/20">
-          <h2 className="mb-3 font-black text-emerald-900 dark:text-emerald-100">Solicitações pendentes</h2>
+        <section className="rounded-xl border border-orange-200 bg-orange-50 p-4 dark:border-orange-900/70 dark:bg-orange-950/20">
+          <h2 className="mb-3 font-black text-orange-900 dark:text-orange-100">Solicitações pendentes</h2>
           <div className="grid gap-3">
             {pendingRequests.map((request) => (
               <div key={request.id} className="flex flex-col justify-between gap-3 rounded-xl bg-white p-4 shadow-sm dark:bg-white/10 sm:flex-row sm:items-center">
@@ -1651,7 +1661,7 @@ function ManagerPeople({
               Cadastros aprovados, disciplinas, vínculos e e-mails institucionais.
             </p>
           </div>
-          <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-black text-[#0f8a61] dark:bg-emerald-400/10 dark:text-emerald-100">
+          <span className="rounded-full bg-orange-50 px-3 py-1.5 text-xs font-black text-[#24103d] dark:bg-orange-400/10 dark:text-orange-100">
             {data.teachers.length} ativo(s)
           </span>
         </div>
@@ -1662,10 +1672,10 @@ function ManagerPeople({
             {data.teachers.map((teacher) => (
               <article
                 key={teacher.id}
-                className="group grid gap-4 rounded-2xl border border-zinc-200 bg-zinc-50/70 p-4 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:bg-white hover:shadow-md dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-emerald-400/30 dark:hover:bg-white/[0.05] md:grid-cols-[1.2fr_1fr_auto]"
+                className="group grid gap-4 rounded-2xl border border-zinc-200 bg-zinc-50/70 p-4 transition-all duration-300 hover:-translate-y-1 hover:border-orange-200 hover:bg-white hover:shadow-md dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-orange-400/30 dark:hover:bg-white/[0.05] md:grid-cols-[1.2fr_1fr_auto]"
               >
                 <div className="flex min-w-0 items-center gap-3">
-                  <span className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-xl bg-[#0f8a61] text-sm font-black text-white shadow-sm">
+                  <span className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-xl bg-[#24103d] text-sm font-black text-white shadow-sm">
                     {teacher.avatarUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={teacher.avatarUrl} alt={teacher.fullName} className="h-full w-full object-cover" />
@@ -1689,7 +1699,7 @@ function ManagerPeople({
                   </div>
                 </div>
                 <div className="flex items-center gap-2 md:justify-end">
-                  <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-black text-[#0f8a61] dark:bg-emerald-400/10 dark:text-emerald-100">
+                  <span className="rounded-full bg-orange-50 px-3 py-1.5 text-xs font-black text-[#24103d] dark:bg-orange-400/10 dark:text-orange-100">
                     {teacher.contractStatus === "active" ? "Ativo" : teacher.contractStatus}
                   </span>
                   <button
@@ -1833,7 +1843,7 @@ function reservationStatusLabel(status: AppSnapshot["reservations"][number]["sta
 }
 
 function reservationStatusClass(status: AppSnapshot["reservations"][number]["status"]) {
-  if (status === "approved") return "bg-emerald-50 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-200";
+  if (status === "approved") return "bg-orange-50 text-orange-700 dark:bg-orange-400/10 dark:text-orange-200";
   if (status === "rejected") return "bg-rose-50 text-rose-700 dark:bg-rose-400/10 dark:text-rose-200";
   return "bg-amber-50 text-amber-700 dark:bg-amber-400/10 dark:text-amber-200";
 }
@@ -1947,8 +1957,8 @@ function RoomsManager({
   return (
     <section className="grid gap-5">
       <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard icon={<DoorOpen size={17} />} label="Salas cadastradas" value={rooms.length} tone="bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10" />
-        <StatCard icon={<CheckCircle2 size={17} />} label="Disponíveis para uso" value={availableCount} tone="bg-teal-50 text-teal-600 dark:bg-teal-500/10" />
+        <StatCard icon={<DoorOpen size={17} />} label="Salas cadastradas" value={rooms.length} tone="bg-orange-50 text-orange-600 dark:bg-orange-500/10" />
+        <StatCard icon={<CheckCircle2 size={17} />} label="Disponíveis para uso" value={availableCount} tone="bg-violet-50 text-violet-600 dark:bg-violet-500/10" />
         <StatCard icon={<X size={17} />} label="Indisponíveis" value={unavailableCount} tone="bg-rose-50 text-rose-600 dark:bg-rose-500/10" />
       </div>
 
@@ -1967,7 +1977,7 @@ function RoomsManager({
               className={cx(
                 "grid gap-3 rounded-2xl border p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md",
                 room.isAvailable
-                  ? "border-emerald-100 bg-emerald-50/60 dark:border-emerald-400/20 dark:bg-emerald-400/10"
+                  ? "border-orange-100 bg-orange-50/60 dark:border-orange-400/20 dark:bg-orange-400/10"
                   : "border-rose-100 bg-rose-50/70 dark:border-rose-400/20 dark:bg-rose-400/10",
               )}
               onSubmit={async (event) => {
@@ -1993,7 +2003,7 @@ function RoomsManager({
                   className={cx(
                     "shrink-0 rounded-full px-2.5 py-1 text-[11px] font-black",
                     room.isAvailable
-                      ? "bg-emerald-100 text-[#0f8a61] dark:bg-emerald-400/15 dark:text-emerald-100"
+                      ? "bg-orange-100 text-[#24103d] dark:bg-orange-400/15 dark:text-orange-100"
                       : "bg-rose-100 text-rose-700 dark:bg-rose-400/15 dark:text-rose-100",
                   )}
                 >
@@ -2132,7 +2142,7 @@ function SchedulesManager({
             <select
               value={activeScheduleFilter}
               onChange={(event) => setScheduleFilterDiscipline(event.currentTarget.value)}
-              className="h-10 rounded-lg border border-zinc-200 bg-white px-3 text-sm text-zinc-950 outline-none transition-all duration-200 hover:border-zinc-300 focus:border-[#36c486] focus:ring-4 focus:ring-emerald-100 dark:border-white/10 dark:bg-[#07120d] dark:text-white dark:hover:border-white/20 dark:focus:ring-emerald-950/40"
+              className="h-10 rounded-lg border border-zinc-200 bg-white px-3 text-sm text-zinc-950 outline-none transition-all duration-200 hover:border-zinc-300 focus:border-[#f15a3f] focus:ring-4 focus:ring-orange-100 dark:border-white/10 dark:bg-[#16091f] dark:text-white dark:hover:border-white/20 dark:focus:ring-orange-950/40"
             >
               <option value="">Todas</option>
               {scheduleDisciplines.map((discipline) => (
@@ -2265,7 +2275,7 @@ function SchedulesManager({
         </form>
       )}
 
-      <div className="sticky top-3 z-20 mb-4 mt-4 flex flex-col gap-3 rounded-2xl bg-zinc-100 px-1.5 pb-1.5 pt-4 shadow-sm dark:bg-[#07120d] sm:flex-row sm:items-center sm:justify-between">
+      <div className="sticky top-3 z-20 mb-4 mt-4 flex flex-col gap-3 rounded-2xl bg-zinc-100 px-1.5 pb-1.5 pt-4 shadow-sm dark:bg-[#16091f] sm:flex-row sm:items-center sm:justify-between">
         <Button
           onClick={scheduleOpen && !editingSchedule ? closeForm : openNewSchedule}
           className="h-9 w-full shrink-0 sm:w-auto"
@@ -2285,7 +2295,7 @@ function SchedulesManager({
                 className={cx(
                   "h-9 rounded-xl px-4 text-sm font-black transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.98]",
                   scheduleShift === shift.value
-                    ? "bg-[#36c486] text-white shadow-sm"
+                    ? "bg-[#f15a3f] text-white shadow-sm"
                     : "bg-white text-zinc-500 hover:text-zinc-950 dark:bg-white/5 dark:text-zinc-400 dark:hover:text-white",
                 )}
               >
@@ -2302,7 +2312,7 @@ function SchedulesManager({
                 className={cx(
                   "h-9 rounded-xl px-4 text-sm font-black transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.98]",
                   scheduleDay === day.value
-                    ? "bg-white text-[#0f8a61] shadow-sm dark:bg-[#123322] dark:text-emerald-100"
+                    ? "bg-white text-[#24103d] shadow-sm dark:bg-[#2b1745] dark:text-orange-100"
                     : "text-zinc-500 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-white",
                 )}
               >
@@ -2324,7 +2334,7 @@ function SchedulesManager({
           <table className="w-full min-w-[920px] border-separate border-spacing-0 text-left text-sm">
             <thead>
               <tr className="bg-zinc-50 text-xs uppercase tracking-wide text-zinc-400 dark:bg-white/[0.03]">
-                <th className="sticky left-0 z-10 border-b border-zinc-200 bg-zinc-50 px-4 py-3 font-black dark:border-white/10 dark:bg-[#07120d]">
+                <th className="sticky left-0 z-10 border-b border-zinc-200 bg-zinc-50 px-4 py-3 font-black dark:border-white/10 dark:bg-[#16091f]">
                   Horário
                 </th>
                 {displayedClassGroups.map((classGroup) => (
@@ -2337,7 +2347,7 @@ function SchedulesManager({
             <tbody>
               {currentPeriodOptions.map((period) => (
                 <tr key={period.value}>
-                  <td className="sticky left-0 z-10 border-b border-zinc-100 bg-white px-4 py-4 align-top font-black dark:border-white/10 dark:bg-[#07120d]">
+                  <td className="sticky left-0 z-10 border-b border-zinc-100 bg-white px-4 py-4 align-top font-black dark:border-white/10 dark:bg-[#16091f]">
                     <div>{period.label}</div>
                     <div className="mt-1 text-xs font-semibold text-zinc-400">{period.start}-{period.end}</div>
                   </td>
@@ -2357,8 +2367,8 @@ function SchedulesManager({
                                 className={cx(
                                   "rounded-xl border p-3 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md",
                                   activeScheduleFilter
-                                    ? "border-emerald-300 bg-emerald-100 shadow-sm shadow-emerald-900/10 ring-1 ring-emerald-200 dark:border-emerald-300/40 dark:bg-emerald-400/15 dark:ring-emerald-300/20"
-                                    : "border-emerald-100 bg-emerald-50/70 dark:border-emerald-400/20 dark:bg-emerald-400/10",
+                                    ? "border-orange-300 bg-orange-100 shadow-sm shadow-orange-900/10 ring-1 ring-orange-200 dark:border-orange-300/40 dark:bg-orange-400/15 dark:ring-orange-300/20"
+                                    : "border-orange-100 bg-orange-50/70 dark:border-orange-400/20 dark:bg-orange-400/10",
                                 )}
                               >
                                 <div className="font-black text-zinc-900 dark:text-white">{schedule.discipline}</div>
@@ -2369,7 +2379,7 @@ function SchedulesManager({
                                 <div className="mt-3 flex flex-wrap gap-1.5">
                                   <button
                                     type="button"
-                                    className="inline-flex h-7 items-center gap-1 rounded-lg bg-white px-2 text-[11px] font-black text-[#0f8a61] shadow-sm transition hover:-translate-y-0.5 dark:bg-white/10 dark:text-emerald-100"
+                                    className="inline-flex h-7 items-center gap-1 rounded-lg bg-white px-2 text-[11px] font-black text-[#24103d] shadow-sm transition hover:-translate-y-0.5 dark:bg-white/10 dark:text-orange-100"
                                     onClick={() => openEditSchedule(schedule)}
                                   >
                                     <Pencil size={12} /> Editar
@@ -2420,7 +2430,7 @@ function NoticesManager({
     <section className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.04]">
       <div className="mb-5 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-black uppercase tracking-wide text-[#36c486] dark:bg-emerald-500/10">
+          <div className="inline-flex items-center gap-2 rounded-full bg-orange-50 px-3 py-1.5 text-xs font-black uppercase tracking-wide text-[#f15a3f] dark:bg-orange-500/10">
             <Bell size={14} /> Avisos
           </div>
           <h2 className="mt-3 text-xl font-black">Gerenciar Avisos</h2>
@@ -2432,7 +2442,7 @@ function NoticesManager({
 
       {noticeOpen && (
         <form
-          className="mb-5 grid gap-4 rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4 shadow-sm dark:border-emerald-500/20 dark:bg-emerald-950/10"
+          className="mb-5 grid gap-4 rounded-2xl border border-orange-100 bg-orange-50/50 p-4 shadow-sm dark:border-orange-500/20 dark:bg-orange-950/10"
           onSubmit={async (event) => {
             event.preventDefault();
             const form = event.currentTarget;
@@ -2459,7 +2469,7 @@ function NoticesManager({
               name="body"
               rows={4}
               required
-              className="rounded-xl border border-zinc-200 bg-white px-4 py-3 text-base text-zinc-950 outline-none transition-all duration-200 placeholder:text-zinc-400 hover:border-zinc-300 focus:border-[#36c486] focus:ring-4 focus:ring-emerald-100 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-zinc-500 dark:hover:border-white/20 dark:focus:ring-emerald-950/40"
+              className="rounded-xl border border-zinc-200 bg-white px-4 py-3 text-base text-zinc-950 outline-none transition-all duration-200 placeholder:text-zinc-400 hover:border-zinc-300 focus:border-[#f15a3f] focus:ring-4 focus:ring-orange-100 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-zinc-500 dark:hover:border-white/20 dark:focus:ring-orange-950/40"
               placeholder="Detalhe o comunicado para todos os usuários."
             />
           </label>
@@ -2474,12 +2484,12 @@ function NoticesManager({
         {data.notices.map((notice) => (
           <article
             key={notice.id}
-            className="group flex items-start justify-between gap-4 rounded-2xl border border-zinc-200 border-t-4 border-t-[#36c486] bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-emerald-100 hover:shadow-md dark:border-white/10 dark:border-t-[#36c486] dark:bg-white/[0.03] dark:hover:border-emerald-500/30"
+            className="group flex items-start justify-between gap-4 rounded-2xl border border-zinc-200 border-t-4 border-t-[#f15a3f] bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-orange-100 hover:shadow-md dark:border-white/10 dark:border-t-[#f15a3f] dark:bg-white/[0.03] dark:hover:border-orange-500/30"
           >
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <h3 className="font-black">{notice.title}</h3>
-                <span className="rounded-full bg-emerald-50 px-2 py-1 text-[11px] font-bold text-[#36c486] dark:bg-emerald-500/10">
+                <span className="rounded-full bg-orange-50 px-2 py-1 text-[11px] font-bold text-[#f15a3f] dark:bg-orange-500/10">
                   {notice.category}
                 </span>
               </div>
@@ -2542,7 +2552,7 @@ function TeacherOverview({
       <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.04]">
         <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
-            <span className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-50 text-[#36c486] dark:bg-emerald-400/10">
+            <span className="grid h-9 w-9 place-items-center rounded-xl bg-orange-50 text-[#f15a3f] dark:bg-orange-400/10">
               <Calendar size={17} />
             </span>
             <div>
@@ -2597,10 +2607,10 @@ function TeacherOverview({
         )}
       </section>
 
-      <section className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-5 shadow-sm dark:border-emerald-400/20 dark:bg-emerald-950/20 lg:col-span-2">
+      <section className="rounded-2xl border border-orange-200 bg-orange-50/60 p-5 shadow-sm dark:border-orange-400/20 dark:bg-orange-950/20 lg:col-span-2">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-start gap-3">
-            <span className="grid h-10 w-10 place-items-center rounded-xl bg-white text-[#36c486] shadow-sm dark:bg-white/10">
+            <span className="grid h-10 w-10 place-items-center rounded-xl bg-white text-[#f15a3f] shadow-sm dark:bg-white/10">
               <Bell size={18} />
             </span>
             <div>
@@ -2653,7 +2663,7 @@ function TeacherSchedules({ schedules }: { schedules: AppSnapshot["schedules"] }
               <section key={discipline} className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.04]">
                 <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                   <h3 className="font-black">{discipline}</h3>
-                  <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-[#0f8a61] dark:bg-emerald-400/10 dark:text-emerald-100">
+                  <span className="rounded-full bg-orange-50 px-3 py-1 text-xs font-black text-[#24103d] dark:bg-orange-400/10 dark:text-orange-100">
                     {shiftLabel(shiftForDiscipline)}
                   </span>
                 </div>
@@ -2851,7 +2861,7 @@ function TeacherProfile({
         <div className="flex items-center gap-5">
           <button
             type="button"
-            className="relative grid h-20 w-20 place-items-center overflow-hidden rounded-2xl bg-[#0f8a61] text-2xl font-black text-white shadow-sm"
+            className="relative grid h-20 w-20 place-items-center overflow-hidden rounded-2xl bg-[#24103d] text-2xl font-black text-white shadow-sm"
             onClick={() => fileInputRef.current?.click()}
             aria-label="Alterar foto"
           >
@@ -2861,13 +2871,13 @@ function TeacherProfile({
             ) : (
               initials(name)
             )}
-            <span className="absolute bottom-1 right-1 grid h-7 w-7 place-items-center rounded-full bg-[#36c486] text-white ring-2 ring-white dark:ring-[#07120d]">
+            <span className="absolute bottom-1 right-1 grid h-7 w-7 place-items-center rounded-full bg-[#f15a3f] text-white ring-2 ring-white dark:ring-[#16091f]">
               <Upload size={13} />
             </span>
           </button>
           <div>
             <h3 className="text-xl font-black">{name}</h3>
-            <p className="mt-1 font-semibold text-[#36c486]">Professor</p>
+            <p className="mt-1 font-semibold text-[#f15a3f]">Professor</p>
           </div>
         </div>
         <input

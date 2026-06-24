@@ -3,8 +3,8 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #f5f6f8;
-  --foreground: #062016;
+  --background: #fbf7f4;
+  --foreground: #24103d;
 }
 
 @theme inline {
@@ -15,7 +15,7 @@
 }
 
 .dark {
-  --background: #020806;
+  --background: #08040d;
   --foreground: #f8fafc;
 }
 
@@ -40,7 +40,7 @@ textarea {
 }
 
 ::selection {
-  background: #36c486;
+  background: #f15a3f;
   color: white;
 }
 
